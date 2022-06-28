@@ -20,13 +20,15 @@ class DiscoursePost:
             self._author_name = post_json["name"]
 
         try:
-            self._created_at = datetime.fromisoformat(post_json["created_at"].replace('Z', '+00:00'))
-        except OSError | ValueError:
+            if "created_at" in post_json:
+                self._created_at = datetime.fromisoformat(post_json["created_at"].replace('Z', '+00:00'))
+        except (OSError, ValueError):
             pass
 
         try:
-            self._updated_at = datetime.fromisoformat(post_json["updated_at"].replace('Z', '+00:00'))
-        except OSError | ValueError:
+            if "updated_at" in post_json:
+                self._updated_at = datetime.fromisoformat(post_json["updated_at"].replace('Z', '+00:00'))
+        except (OSError,  ValueError):
             pass
 
         if "raw" in post_json:
