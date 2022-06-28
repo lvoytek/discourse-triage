@@ -1,4 +1,4 @@
-from discourse_topic import DiscourseTopic
+from dsctriage import DiscourseTopic
 
 
 class DiscourseCategory:

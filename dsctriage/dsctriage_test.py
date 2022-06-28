@@ -3,7 +3,7 @@ import datetime
 import pytest
 import json
 
-from dsctriage.discourse_post import DiscoursePost
+from dsctriage import DiscoursePost, DiscourseTopic
 
 
 @pytest.mark.parametrize('post_id, name, username, data, created, updated, post_string', [
