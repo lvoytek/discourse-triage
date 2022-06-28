@@ -15,14 +15,55 @@ def test_create_post_from_json(post_id, name, username, data, created, updated, 
     """Test that DiscoursePost extracts json correctly"""
     post_json = json.loads(post_string)
     post = DiscoursePost(post_json)
-    assert str(post.get_id()) == str(post_id)
+    assert post.get_id() == post_id
     assert post.get_author_name() == name
     assert post.get_author_username() == username
     assert post.get_data() == data
     assert post.get_creation_time() == created
     assert post.get_update_time() == updated
 
-    if post.get_id() is None:
+    if post_id is None:
         assert str(post) == 'Invalid Post'
     else:
         assert str(post.get_id()) in str(post)
+
+
+@pytest.mark.parametrize('topic_id, name, slug, topic_string', [
+    (11522, 'Virtualization - libvirt', 'virtualization-libvirt', '{"id":11522,"title":"Virtualization - libvirt","fancy_title":"Virtualization - libvirt","slug":"virtualization-libvirt","posts_count":10,"reply_count":5,"highest_post_number":10,"image_url":null,"created_at":"2019-06-24T11:20:59.936Z","last_posted_at":"2022-06-13T17:56:31.210Z","bumped":true,"bumped_at":"2022-06-13T17:56:31.210Z","archetype":"regular","unseen":false,"last_read_post_number":2,"unread":0,"new_posts":0,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"notification_level":1,"bookmarked":false,"liked":false,"tags":[],"views":10466,"like_count":1,"has_summary":false,"last_poster_username":"chxsec","category_id":26,"pinned_globally":false,"featured_link":null,"has_accepted_answer":false,"posters":[{"extras":null,"description":"Original Poster","user_id":37,"primary_group_id":49},{"extras":null,"description":"Frequent Poster","user_id":11016,"primary_group_id":null},{"extras":null,"description":"Frequent Poster","user_id":3783,"primary_group_id":49},{"extras":null,"description":"Frequent Poster","user_id":10864,"primary_group_id":null},{"extras":"latest","description":"Most Recent Poster","user_id":19034,"primary_group_id":null}]}'),
+    (None, None, None, '{}'),
+    ('', '', '', '{"id":"","title":"","slug":""}')
+])
+def test_create_topic_from_json(topic_id, name, slug, topic_string):
+    topic_json = json.loads(topic_string)
+    topic = DiscourseTopic(topic_json)
+    assert topic.get_id() == topic_id
+    assert topic.get_name() == name
+    assert topic.get_slug() == slug
+
+    if topic_id is None or name is None:
+        assert str(topic) == 'Invalid Topic'
+    else:
+        assert topic.get_name() in str(topic)
+
+
+def test_add_posts_to_topic():
+    topic = DiscourseTopic(json.loads('{"id":"12345","title":"Test Topic","slug":"test-topic"}'))
+    assert len(topic.get_posts()) == 0
+
+    post_1 = DiscoursePost(json.loads('{"id":1,"name":"User","username":"","raw":"","updated_at":"","created_at":""}'))
+    topic.add_post(post_1)
+    assert len(topic.get_posts()) == 1
+
+    post_2 = DiscoursePost(json.loads('{"id":2,"name":"User","username":"","raw":"","updated_at":"","created_at":""}'))
+    topic.add_post(post_2)
+    assert len(topic.get_posts()) == 2
+
+    with pytest.raises(TypeError) as err:
+        topic.add_post(None)
+    assert "not a DiscoursePost" in str(err.value)
+
+    with pytest.raises(TypeError) as err_2:
+        topic.add_post(123)
+    assert "not a DiscoursePost" in str(err_2.value)
+
+    assert len(topic.get_posts()) == 2

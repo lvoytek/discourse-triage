@@ -37,7 +37,7 @@ class DiscourseTopic:
         if isinstance(post, DiscoursePost):
             self._posts.append(post)
         else:
-            raise TypeError("Object of " + type(post) + " is not a DiscoursePost")
+            raise TypeError("Object of " + str(type(post)) + " is not a DiscoursePost")
 
     def get_posts(self):
         return self._posts
