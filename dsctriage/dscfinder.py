@@ -2,8 +2,8 @@ from urllib import request
 from urllib.error import HTTPError
 import json
 from discourse_post import DiscoursePost
-from discourse_category import DiscourseCategory
 from discourse_topic import DiscourseTopic
+from discourse_category import DiscourseCategory
 
 DISCOURSE_URL = (
     'https://discourse.ubuntu.com'
@@ -103,3 +103,7 @@ def add_topics_to_category(category):
 
     except HTTPError:
         pass
+
+
+def get_topic_url(topic):
+    return DISCOURSE_URL + "/t/" + str(topic.get_id())

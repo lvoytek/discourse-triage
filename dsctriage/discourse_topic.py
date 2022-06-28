@@ -1,4 +1,4 @@
-from dsctriage import DiscoursePost
+from discourse_post import DiscoursePost
 
 
 class DiscourseTopic:
