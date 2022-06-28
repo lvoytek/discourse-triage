@@ -24,9 +24,6 @@ class DiscourseCategory:
         else:
             return "Category: " + str(self._name)
 
-    def __iter__(self):
-        return
-
     def get_id(self):
         return self._id
 

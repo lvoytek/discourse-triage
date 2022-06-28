@@ -7,7 +7,10 @@ from dsctriage import DiscoursePost, DiscourseTopic, DiscourseCategory
 
 
 @pytest.mark.parametrize('post_id, name, username, data, created, updated, post_string', [
-    (4592175, 'User Name', 'username1', None, datetime.datetime(2022, 5, 16, 13, 59, 43, 661000, tzinfo=datetime.timezone.utc), datetime.datetime(2022, 5, 19, 15, 32, 33, 361000, tzinfo=datetime.timezone.utc), '{"id":4592175,"name":"User Name","username":"username1","avatar_template":"/user_avatar/discourse.ubuntu.com/username1/{size}/103124_2.png","created_at":"2022-05-16T13:59:43.661Z","cooked":"\u003cp\u003e\u003ca Test comment \u003e","post_number":2,"post_type":1,"updated_at":"2022-05-19T15:32:33.361Z","reply_count":1,"reply_to_post_number":null,"quote_count":0,"incoming_link_count":3,"reads":33,"readers_count":32,"score":26.6,"yours":false,"topic_id":11522,"topic_slug":"test-slug","display_username":"","primary_group_name":null,"primary_group_flair_url":null,"primary_group_flair_bg_color":null,"primary_group_flair_color":null,"version":1,"can_edit":true,"can_delete":false,"can_recover":false,"can_wiki":true,"read":true,"user_title":null,"bookmarked":false,"actions_summary":[{"id":2,"can_act":true},{"id":3,"can_act":true},{"id":4,"can_act":true},{"id":8,"can_act":true},{"id":6,"can_act":true},{"id":7,"can_act":true}],"moderator":false,"admin":false,"staff":false,"user_id":11234234231,"hidden":false,"trust_level":0,"deleted_at":null,"user_deleted":false,"edit_reason":null,"can_view_edit_history":true,"wiki":false,"notice":{"type":"new_user"},"can_accept_answer":true,"can_unaccept_answer":false,"accepted_answer":false}'),
+    (4592175, 'User Name', 'username1', None,
+     datetime.datetime(2022, 5, 16, 13, 59, 43, 661000, tzinfo=datetime.timezone.utc),
+     datetime.datetime(2022, 5, 19, 15, 32, 33, 361000, tzinfo=datetime.timezone.utc),
+     '{"id":4592175,"name":"User Name","username":"username1","avatar_template":"/user_avatar/discourse.ubuntu.com/username1/{size}/103124_2.png","created_at":"2022-05-16T13:59:43.661Z","cooked":"\u003cp\u003e\u003ca Test comment \u003e","post_number":2,"post_type":1,"updated_at":"2022-05-19T15:32:33.361Z","reply_count":1,"reply_to_post_number":null,"quote_count":0,"incoming_link_count":3,"reads":33,"readers_count":32,"score":26.6,"yours":false,"topic_id":11522,"topic_slug":"test-slug","display_username":"","primary_group_name":null,"primary_group_flair_url":null,"primary_group_flair_bg_color":null,"primary_group_flair_color":null,"version":1,"can_edit":true,"can_delete":false,"can_recover":false,"can_wiki":true,"read":true,"user_title":null,"bookmarked":false,"actions_summary":[{"id":2,"can_act":true},{"id":3,"can_act":true},{"id":4,"can_act":true},{"id":8,"can_act":true},{"id":6,"can_act":true},{"id":7,"can_act":true}],"moderator":false,"admin":false,"staff":false,"user_id":11234234231,"hidden":false,"trust_level":0,"deleted_at":null,"user_deleted":false,"edit_reason":null,"can_view_edit_history":true,"wiki":false,"notice":{"type":"new_user"},"can_accept_answer":true,"can_unaccept_answer":false,"accepted_answer":false}'),
     (None, None, None, None, None, None, '{}'),
     ('', '', '', '', None, None, '{"id":"","name":"","username":"","raw":"","updated_at":"","created_at":""}')
 ])
@@ -29,7 +32,8 @@ def test_create_post_from_json(post_id, name, username, data, created, updated, 
 
 
 @pytest.mark.parametrize('topic_id, name, slug, topic_string', [
-    (11522, 'Virtualization - libvirt', 'virtualization-libvirt', '{"id":11522,"title":"Virtualization - libvirt","fancy_title":"Virtualization - libvirt","slug":"virtualization-libvirt","posts_count":10,"reply_count":5,"highest_post_number":10,"image_url":null,"created_at":"2019-06-24T11:20:59.936Z","last_posted_at":"2022-06-13T17:56:31.210Z","bumped":true,"bumped_at":"2022-06-13T17:56:31.210Z","archetype":"regular","unseen":false,"last_read_post_number":2,"unread":0,"new_posts":0,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"notification_level":1,"bookmarked":false,"liked":false,"tags":[],"views":10466,"like_count":1,"has_summary":false,"last_poster_username":"chxsec","category_id":26,"pinned_globally":false,"featured_link":null,"has_accepted_answer":false,"posters":[{"extras":null,"description":"Original Poster","user_id":37,"primary_group_id":49},{"extras":null,"description":"Frequent Poster","user_id":11016,"primary_group_id":null},{"extras":null,"description":"Frequent Poster","user_id":3783,"primary_group_id":49},{"extras":null,"description":"Frequent Poster","user_id":10864,"primary_group_id":null},{"extras":"latest","description":"Most Recent Poster","user_id":19034,"primary_group_id":null}]}'),
+    (11522, 'Virtualization - libvirt', 'virtualization-libvirt',
+     '{"id":11522,"title":"Virtualization - libvirt","fancy_title":"Virtualization - libvirt","slug":"virtualization-libvirt","posts_count":10,"reply_count":5,"highest_post_number":10,"image_url":null,"created_at":"2019-06-24T11:20:59.936Z","last_posted_at":"2022-06-13T17:56:31.210Z","bumped":true,"bumped_at":"2022-06-13T17:56:31.210Z","archetype":"regular","unseen":false,"last_read_post_number":2,"unread":0,"new_posts":0,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"notification_level":1,"bookmarked":false,"liked":false,"tags":[],"views":10466,"like_count":1,"has_summary":false,"last_poster_username":"chxsec","category_id":26,"pinned_globally":false,"featured_link":null,"has_accepted_answer":false,"posters":[{"extras":null,"description":"Original Poster","user_id":37,"primary_group_id":49},{"extras":null,"description":"Frequent Poster","user_id":11016,"primary_group_id":null},{"extras":null,"description":"Frequent Poster","user_id":3783,"primary_group_id":49},{"extras":null,"description":"Frequent Poster","user_id":10864,"primary_group_id":null},{"extras":"latest","description":"Most Recent Poster","user_id":19034,"primary_group_id":null}]}'),
     (None, None, None, '{}'),
     ('', '', '', '{"id":"","title":"","slug":""}')
 ])
@@ -72,7 +76,8 @@ def test_add_posts_to_topic():
 
 
 @pytest.mark.parametrize('category_id, name, description, category_string', [
-    (17, 'Server', 'A place to discuss Ubuntu Server.', '{"id":17,"name":"Server","color":"0E76BD","text_color":"FFFFFF","slug":"server","topic_count":156,"post_count":1068,"position":23,"description":"A place to discuss Ubuntu Server.","description_text":"A place to discuss Ubuntu Server.","description_excerpt":"A place to discuss Ubuntu Server.","topic_url":"/t/about-the-server-category/738","read_restricted":false,"permission":1,"notification_level":1,"topic_template":"","has_children":true,"sort_order":"","sort_ascending":null,"show_subcategory_list":false,"num_featured_topics":3,"default_view":"latest","subcategory_list_style":"rows_with_featured_topics","default_top_period":"all","default_list_filter":"all","minimum_required_tags":0,"navigate_to_first_post_after_read":false,"topics_day":0,"topics_week":0,"topics_month":1,"topics_year":42,"topics_all_time":318,"subcategory_ids":[26,54],"uploaded_logo":null,"uploaded_background":null}'),
+    (17, 'Server', 'A place to discuss Ubuntu Server.',
+     '{"id":17,"name":"Server","color":"0E76BD","text_color":"FFFFFF","slug":"server","topic_count":156,"post_count":1068,"position":23,"description":"A place to discuss Ubuntu Server.","description_text":"A place to discuss Ubuntu Server.","description_excerpt":"A place to discuss Ubuntu Server.","topic_url":"/t/about-the-server-category/738","read_restricted":false,"permission":1,"notification_level":1,"topic_template":"","has_children":true,"sort_order":"","sort_ascending":null,"show_subcategory_list":false,"num_featured_topics":3,"default_view":"latest","subcategory_list_style":"rows_with_featured_topics","default_top_period":"all","default_list_filter":"all","minimum_required_tags":0,"navigate_to_first_post_after_read":false,"topics_day":0,"topics_week":0,"topics_month":1,"topics_year":42,"topics_all_time":318,"subcategory_ids":[26,54],"uploaded_logo":null,"uploaded_background":null}'),
     (None, None, None, '{}'),
     ('', '', '', '{"id":"","name":"","description_text":""}')
 ])
@@ -112,3 +117,11 @@ def test_add_topics_to_category():
     assert "not a DiscourseTopic" in str(err_2.value)
 
     assert len(category.get_topics()) == 2
+
+
+if __name__ == '__main__':
+    test_create_post_from_json()
+    test_create_topic_from_json()
+    test_add_posts_to_topic()
+    test_create_category_from_json()
+    test_add_topics_to_category()
