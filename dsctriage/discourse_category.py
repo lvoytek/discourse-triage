@@ -40,7 +40,7 @@ class DiscourseCategory:
         if isinstance(topic, DiscourseTopic):
             self._topics.append(topic)
         else:
-            raise TypeError("Object of " + type(topic) + " is not a DiscourseTopic")
+            raise TypeError("Object of " + str(type(topic)) + " is not a DiscourseTopic")
 
     def get_topics(self):
         return self._topics

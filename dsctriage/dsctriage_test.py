@@ -3,7 +3,7 @@ import datetime
 import pytest
 import json
 
-from dsctriage import DiscoursePost, DiscourseTopic
+from dsctriage import DiscoursePost, DiscourseTopic, DiscourseCategory
 
 
 @pytest.mark.parametrize('post_id, name, username, data, created, updated, post_string', [
@@ -34,6 +34,7 @@ def test_create_post_from_json(post_id, name, username, data, created, updated, 
     ('', '', '', '{"id":"","title":"","slug":""}')
 ])
 def test_create_topic_from_json(topic_id, name, slug, topic_string):
+    """Test that DiscourseTopic extracts json correctly"""
     topic_json = json.loads(topic_string)
     topic = DiscourseTopic(topic_json)
     assert topic.get_id() == topic_id
@@ -47,6 +48,7 @@ def test_create_topic_from_json(topic_id, name, slug, topic_string):
 
 
 def test_add_posts_to_topic():
+    """Test that DiscourseTopic adds and provides posts correctly"""
     topic = DiscourseTopic(json.loads('{"id":"12345","title":"Test Topic","slug":"test-topic"}'))
     assert len(topic.get_posts()) == 0
 
@@ -67,3 +69,46 @@ def test_add_posts_to_topic():
     assert "not a DiscoursePost" in str(err_2.value)
 
     assert len(topic.get_posts()) == 2
+
+
+@pytest.mark.parametrize('category_id, name, description, category_string', [
+    (17, 'Server', 'A place to discuss Ubuntu Server.', '{"id":17,"name":"Server","color":"0E76BD","text_color":"FFFFFF","slug":"server","topic_count":156,"post_count":1068,"position":23,"description":"A place to discuss Ubuntu Server.","description_text":"A place to discuss Ubuntu Server.","description_excerpt":"A place to discuss Ubuntu Server.","topic_url":"/t/about-the-server-category/738","read_restricted":false,"permission":1,"notification_level":1,"topic_template":"","has_children":true,"sort_order":"","sort_ascending":null,"show_subcategory_list":false,"num_featured_topics":3,"default_view":"latest","subcategory_list_style":"rows_with_featured_topics","default_top_period":"all","default_list_filter":"all","minimum_required_tags":0,"navigate_to_first_post_after_read":false,"topics_day":0,"topics_week":0,"topics_month":1,"topics_year":42,"topics_all_time":318,"subcategory_ids":[26,54],"uploaded_logo":null,"uploaded_background":null}'),
+    (None, None, None, '{}'),
+    ('', '', '', '{"id":"","name":"","description_text":""}')
+])
+def test_create_category_from_json(category_id, name, description, category_string):
+    """Test that DiscourseCategory extracts json correctly"""
+    category_json = json.loads(category_string)
+    category = DiscourseCategory(category_json)
+    assert category.get_id() == category_id
+    assert category.get_name() == name
+    assert category.get_description() == description
+
+    if name is None or category_id is None:
+        assert str(category) == 'Invalid Category'
+    else:
+        assert name in str(category)
+
+
+def test_add_topics_to_category():
+    """Test that DiscourseCategory adds and provides topics correctly"""
+    category = DiscourseCategory(json.loads('{"id":"45678","name":"Test","description_text":"A test category."}'))
+    assert len(category.get_topics()) == 0
+
+    topic_1 = DiscourseTopic(json.loads('{"id":"10","title":"Test Topic 1","slug":"test-topic-1"}'))
+    category.add_topic(topic_1)
+    assert len(category.get_topics()) == 1
+
+    topic_2 = DiscourseTopic(json.loads('{"id":"11","title":"Test Topic 2","slug":"test-topic-2"}'))
+    category.add_topic(topic_2)
+    assert len(category.get_topics()) == 2
+
+    with pytest.raises(TypeError) as err:
+        category.add_topic(None)
+    assert "not a DiscourseTopic" in str(err.value)
+
+    with pytest.raises(TypeError) as err_2:
+        category.add_topic(123)
+    assert "not a DiscourseTopic" in str(err_2.value)
+
+    assert len(category.get_topics()) == 2
