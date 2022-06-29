@@ -1,9 +1,9 @@
 from urllib import request
 from urllib.error import HTTPError
 import json
-from discourse_post import DiscoursePost
-from discourse_topic import DiscourseTopic
-from discourse_category import DiscourseCategory
+from .discourse_post import DiscoursePost
+from .discourse_topic import DiscourseTopic
+from .discourse_category import DiscourseCategory
 
 DISCOURSE_URL = (
     'https://discourse.ubuntu.com'

@@ -2,7 +2,8 @@
 
 import argparse
 from datetime import date, datetime, timedelta, timezone
-import dscfinder
+from . import dscfinder
+
 
 def launch():
     parser = argparse.ArgumentParser()
@@ -22,7 +23,3 @@ def launch():
     parser.add_argument('--fullurls', default=False, action='store_true',
                         help='show full URLs instead of shortcuts')
     args = parser.parse_args()
-
-
-if __name__ == '__main__':
-    launch()
