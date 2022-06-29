@@ -8,6 +8,7 @@ class DiscoursePost:
         self._author_name = None
         self._created_at = None
         self._updated_at = None
+        self._post_number = None
         self._data = None
 
         if "id" in post_json:
@@ -30,6 +31,9 @@ class DiscoursePost:
                 self._updated_at = datetime.fromisoformat(post_json["updated_at"].replace('Z', '+00:00'))
         except (OSError,  ValueError):
             pass
+
+        if "post_number" in post_json:
+            self._post_number = post_json["post_number"]
 
         if "raw" in post_json:
             self._data = post_json["raw"]
@@ -54,6 +58,9 @@ class DiscoursePost:
 
     def get_update_time(self):
         return self._updated_at
+
+    def get_post_number(self):
+        return self._post_number
 
     def get_data(self):
         return self._data

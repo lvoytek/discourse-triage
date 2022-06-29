@@ -106,4 +106,16 @@ def add_topics_to_category(category):
 
 
 def get_topic_url(topic):
+    """Get the human-readable site url of a given topic"""
     return DISCOURSE_URL + "/t/" + str(topic.get_id())
+
+
+def get_post_url(topic, post_index):
+    """Get the human-readable site url of a post belonging to a given topic"""
+    url = get_topic_url(topic)
+    posts = topic.get_posts()
+
+    if 0 <= post_index < len(posts):
+        url += "/" + str(posts[post_index].get_post_number())
+
+    return url
