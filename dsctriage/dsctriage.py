@@ -7,6 +7,11 @@ import re
 import logging
 from . import dscfinder
 
+try:
+    from alive_progress import alive_bar
+except ImportError:
+    alive_bar = None
+
 
 def parse_dates(start=None, end=None):
     """
@@ -39,7 +44,8 @@ def show_header(category_name, pretty_start_date, pretty_end_date):
     logging.info('Showing comments belonging to the ' + str(category_name) + ' category, updated ' + date_range_info)
 
 
-def main(category_name, date_range=None, debug=False, open_browser=False, shorten_links=True, log_stream=sys.stdout):
+def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
+         log_stream=sys.stdout):
     """Download contents of a given category, find relevant posts, print them to console"""
     category = dscfinder.get_category_by_name(category_name)
 
@@ -61,6 +67,16 @@ def main(category_name, date_range=None, debug=False, open_browser=False, shorte
 
     dscfinder.add_topics_to_category(category)
 
+    topics = category.get_topics()
+    if progress_bar and alive_bar is not None:
+        with alive_bar(len(topics)) as bar:
+            for topic in topics:
+                dscfinder.add_posts_to_topic(topic)
+                bar()
+    else:
+        for topic in topics:
+            dscfinder.add_posts_to_topic(topic)
+
 
 def launch():
     """Launch discourse-triage via the command line with given arguments"""
@@ -68,11 +84,11 @@ def launch():
     parser.add_argument('start_date',
                         nargs='?',
                         help='date to start finding comments ' +
-                        '(e.g. 2022-04-13)')
+                             '(e.g. 2022-04-13)')
     parser.add_argument('end_date',
                         nargs='?',
                         help='date to end finding comments (inclusive) ' +
-                        '(e.g. 2022-04-27)')
+                             '(e.g. 2022-04-27)')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='debug output')
     parser.add_argument('-o', '--open', action='store_const',
@@ -87,4 +103,4 @@ def launch():
     date_range = {'start': args.start_date,
                   'end': args.end_date}
 
-    main(args.category_name, date_range, args.debug, args.open, not args.fullurls)
+    main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls)

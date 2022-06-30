@@ -96,7 +96,6 @@ def add_topics_to_category(category):
             if "topic_list" in json_output and "topics" in json_output["topic_list"]:
                 for topic in json_output["topic_list"]["topics"]:
                     new_topic = DiscourseTopic(topic)
-                    add_posts_to_topic(new_topic)
 
                     if new_topic is not None:
                         category.add_topic(new_topic)

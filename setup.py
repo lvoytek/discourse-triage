@@ -24,5 +24,5 @@ setup(name='dsctriage',
       entry_points={
           'console_scripts': ['dsctriage=dsctriage.dsctriage:launch']
       },
-      install_requires=[],
+      install_requires=['alive-progress'],
       zip_safe=False)
