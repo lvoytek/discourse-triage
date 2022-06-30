@@ -62,7 +62,7 @@ def get_category_by_name(category_name):
             json_output = json.loads(url_data.read().decode())
             if "category_list" in json_output and "categories" in json_output["category_list"]:
                 for category in json_output["category_list"]["categories"]:
-                    if category["name"] == category_name:
+                    if category["name"].lower() == category_name.lower():
                         return DiscourseCategory(category)
     except HTTPError:
         pass
