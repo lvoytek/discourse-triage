@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import re
 import logging
 from . import dscfinder
@@ -44,6 +44,50 @@ def show_header(category_name, pretty_start_date, pretty_end_date):
     logging.info('Showing comments belonging to the ' + str(category_name) + ' category, updated ' + date_range_info)
 
 
+def print_single_comment(topic_string, post, tags, date_updated, post_url, shorten_links, show_topic_name,
+                         topic_name_length=25):
+    """Display info on a single post in readable format"""
+    post_str = ''
+    if show_topic_name:
+        if len(topic_string) > topic_name_length:
+            post_str += topic_string[0:topic_name_length - 1]
+            post_str += '…'
+        else:
+            post_str += topic_string
+            post_str += ' ' * (topic_name_length - len(topic_string))
+    else:
+        post_str += ' ' * topic_name_length
+
+    post_str += ' - '
+
+    post_str += 'id: %5s %3s ' % (str(post.get_id()), tags)
+    post_str += date_updated.strftime('%Y-%m-%d')
+
+    print(post_str)
+
+
+def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
+    """Display relevant posts in a readable format"""
+    for topic in category.get_topics():
+        post_list = []
+        # Get relevant posts for a topic and add tags
+        posts = topic.get_posts()
+        for i in range(len(posts)):
+            creation_time = posts[i].get_creation_time()
+            update_time = posts[i].get_update_time()
+
+            if (creation_time != update_time) and (start <= update_time < end):
+                post_list.append((i, 'U', update_time))
+            elif start <= creation_time < end:
+                post_list.append((i, 'N', creation_time))
+
+        # Display first post for a topic with topic name, then all subsequent with blank space
+        for i in range(len(post_list)):
+            url = dscfinder.get_post_url(topic, post_list[i][0])
+            print_single_comment(topic.get_name(), posts[post_list[i][0]], post_list[i][1], post_list[i][2], url,
+                                 shorten_links, i == 0)
+
+
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
          log_stream=sys.stdout):
     """Download contents of a given category, find relevant posts, print them to console"""
@@ -57,8 +101,8 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
                         level=logging.DEBUG if debug else logging.INFO)
 
     date_range['start'], date_range['end'] = parse_dates(date_range['start'], date_range['end'])
-    start = datetime.strptime(date_range['start'], '%Y-%m-%d')
-    end = datetime.strptime(date_range['end'], '%Y-%m-%d')
+    start = datetime.strptime(date_range['start'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
+    end = datetime.strptime(date_range['end'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
     pretty_start = start.strftime('%Y-%m-%d (%A)')
     pretty_end = end.strftime('%Y-%m-%d (%A)')
     end += timedelta(days=1)
@@ -76,6 +120,8 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
     else:
         for topic in topics:
             dscfinder.add_posts_to_topic(topic)
+
+    print_comments(category, start, end, open_browser, shorten_links)
 
 
 def launch():
