@@ -44,6 +44,11 @@ def show_header(category_name, pretty_start_date, pretty_end_date):
     logging.info('Showing comments belonging to the ' + str(category_name) + ' category, updated ' + date_range_info)
 
 
+def create_hyperlink(url, text):
+    """Formats text into a hyperlink using ANSI escape codes."""
+    return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
+
+
 def print_single_comment(topic_string, post, tags, date_updated, post_url, shorten_links, show_topic_name,
                          topic_name_length=25):
     """Display info on a single post in readable format"""
@@ -60,8 +65,18 @@ def print_single_comment(topic_string, post, tags, date_updated, post_url, short
 
     post_str += ' - '
 
-    post_str += 'id: %5s %3s ' % (str(post.get_id()), tags)
+    base_id_str = 'id: %-6s' % str(post.get_id())
+
+    if shorten_links:
+        post_str += create_hyperlink(post_url, base_id_str)
+    else:
+        post_str += base_id_str
+
+    post_str += ' %-3s ' % tags
     post_str += date_updated.strftime('%Y-%m-%d')
+
+    if not shorten_links:
+        post_str += ' [' + post_url + ']'
 
     print(post_str)
 
