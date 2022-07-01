@@ -77,6 +77,8 @@ def print_single_comment(topic_string, post, tags, date_updated, post_url, short
     post_str += ' %-3s ' % tags
     post_str += date_updated.strftime('%Y-%m-%d')
 
+    post_str += ' %-18s' % post.get_author_name()
+
     if not shorten_links:
         post_str += ' [' + post_url + ']'
 
