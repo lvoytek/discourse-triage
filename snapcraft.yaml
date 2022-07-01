@@ -1,0 +1,24 @@
+name: dsctriage
+summary: Ubuntu Server team script to get discourse.ubuntu.com comments for triage
+description: |
+  Output comments from Ubuntu Discourse for triage. This script is used by the Ubuntu Server team to keep up with
+  suggested fixes and issues in the Ubuntu Server Guide. It can, however, also be used to look into Discourse posts in
+  other sections of Ubuntu's documentation.
+
+base: core20
+type: app
+version: git
+confinement: strict
+grade: stable
+
+apps:
+  dsctriage:
+    command: bin/dsctriage
+    plugs:
+      [network, network-bind]
+
+parts:
+  dsctriage:
+    plugin: python
+    source: https://github.com/lvoytek/discourse-triage
+    source-type: git
