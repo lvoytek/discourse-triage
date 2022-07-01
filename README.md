@@ -1,7 +1,22 @@
 # Discourse Triage
+
+[![dsctriage](https://snapcraft.io/dsctriage/badge.svg)](https://snapcraft.io/dsctriage)
+
 Output comments from [Ubuntu Discourse](https://discourse.ubuntu.com) for triage. This script is used by the Ubuntu
 Server team to keep up with suggested fixes and issues in the [Ubuntu Server Guide](https://ubuntu.com/server/docs). It
 can, however, also be used to look into Discourse posts in other sections of Ubuntu's documentation.
+
+The easiest way to install and keep dsctriage up to date is through snap:
+
+```bash
+sudo snap install dsctriage
+```
+
+Alternatively you can download this repository and run directly with python:
+
+```bash
+python3 -m dsctriage
+```
 
 ## Usage
 To run Discourse Triage with the default settings, open a terminal and enter:
