@@ -3,8 +3,10 @@
 import argparse
 import sys
 from datetime import datetime, timedelta, timezone
+import time
 import re
 import logging
+import webbrowser
 from . import dscfinder
 
 try:
@@ -83,6 +85,8 @@ def print_single_comment(topic_string, post, tags, date_updated, post_url, short
 
 def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
     """Display relevant posts in a readable format"""
+    initial_browser_open = True
+
     for topic in category.get_topics():
         post_list = []
         # Get relevant posts for a topic and add tags
@@ -101,6 +105,15 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
             url = dscfinder.get_post_url(topic, post_list[i][0])
             print_single_comment(topic.get_name(), posts[post_list[i][0]], post_list[i][1], post_list[i][2], url,
                                  shorten_links, i == 0)
+
+            if open_in_browser:
+                if initial_browser_open:
+                    initial_browser_open = False
+                    webbrowser.open(url)
+                    time.sleep(5)
+                else:
+                    webbrowser.open_new_tab(url)
+                    time.sleep(1.2)
 
 
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
