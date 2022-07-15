@@ -30,8 +30,7 @@ class DiscourseTopic:
         """Display topic as invalid or by its name."""
         if self._id is None or self._name is None:
             return "Invalid Topic"
-        else:
-            return "Topic: " + str(self._name)
+        return "Topic: " + str(self._name)
 
     def get_id(self):
         """Get the global discourse id of the topic."""

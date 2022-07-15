@@ -50,8 +50,7 @@ class DiscoursePost:
         """Display post as invalid or by its id."""
         if self._id is None:
             return "Invalid Post"
-        else:
-            return "Post #" + str(self._id)
+        return "Post #" + str(self._id)
 
     def get_id(self):
         """Get discourse post global id."""

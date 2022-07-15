@@ -45,7 +45,7 @@ def show_header(category_name, pretty_start_date, pretty_end_date):
         else ('between ' + str(pretty_start_date) + ' and ' + str(pretty_end_date) + ' inclusive')
 
     logging.info('Discourse Comment Triage Helper')
-    logging.info('Showing comments belonging to the ' + str(category_name) + ' category, updated ' + date_range_info)
+    logging.info('Showing comments belonging to the %s category, updated %s' % (str(category_name), date_range_info))
 
 
 def create_hyperlink(url, text):
@@ -53,6 +53,7 @@ def create_hyperlink(url, text):
     return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
 
 
+# pylint: disable=too-many-arguments
 def print_single_comment(topic_string, post, tags, date_updated, post_url, shorten_links, show_topic_name,
                          topic_name_length=25):
     """Display info on a single post in readable format."""
@@ -145,10 +146,10 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
 
     topics = category.get_topics()
     if progress_bar and alive_bar is not None:
-        with alive_bar(len(topics)) as bar:
+        with alive_bar(len(topics)) as bar_view:
             for topic in topics:
                 dscfinder.add_posts_to_topic(topic)
-                bar()
+                bar_view()
     else:
         for topic in topics:
             dscfinder.add_posts_to_topic(topic)

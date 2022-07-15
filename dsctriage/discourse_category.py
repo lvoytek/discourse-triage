@@ -30,8 +30,7 @@ class DiscourseCategory:
         """Display category as invalid or by its name."""
         if self._id is None or self._name is None:
             return "Invalid Category"
-        else:
-            return "Category: " + str(self._name)
+        return "Category: " + str(self._name)
 
     def get_id(self):
         """Get the global discourse id for the category."""

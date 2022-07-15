@@ -6,6 +6,7 @@ import pytest
 from dsctriage import DiscoursePost, DiscourseTopic, DiscourseCategory
 
 
+# pylint: disable=too-many-arguments
 @pytest.mark.parametrize('post_id, name, username, data, post_number, created, updated, post_string', [
     (4592175, 'User Name', 'username1', None, 2,
      datetime.datetime(2022, 5, 16, 13, 59, 43, 661000, tzinfo=datetime.timezone.utc),
@@ -149,11 +150,3 @@ def test_add_topics_to_category():
     assert "not a DiscourseTopic" in str(err_2.value)
 
     assert len(category.get_topics()) == 2
-
-
-if __name__ == '__main__':
-    test_create_post_from_json()
-    test_create_topic_from_json()
-    test_add_posts_to_topic()
-    test_create_category_from_json()
-    test_add_topics_to_category()
