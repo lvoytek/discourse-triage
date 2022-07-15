@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  tox:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt -qy update && sudo apt -qy upgrade
+          sudo DEBIAN_FRONTEND=noninteractive apt -qy install tox
+      - name: Git checkout
+        uses: actions/checkout@v3
+      - name: Run tox
+        run: tox
