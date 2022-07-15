@@ -5,11 +5,13 @@ from datetime import datetime
 class DiscoursePost:
     """Class that contains discourse post data extracted from a JSON object."""
 
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, post_json):
         """
         Create a post object using a JSON object.
 
-        Valid keys: 'id', 'username', 'name', 'created_at', 'updated_at', 'post_number', 'raw'
+        Valid keys: 'id', 'username', 'name', 'created_at', 'updated_at', 'post_number', 'raw', 'reply_count',
+        'reply_to_post_number'
         """
         self._id = None
         self._author_username = None
@@ -18,6 +20,8 @@ class DiscoursePost:
         self._updated_at = None
         self._post_number = None
         self._data = None
+        self._num_replies = None
+        self._reply_to_number = None
 
         if "id" in post_json:
             self._id = post_json["id"]
@@ -45,6 +49,12 @@ class DiscoursePost:
 
         if "raw" in post_json:
             self._data = post_json["raw"]
+
+        if "reply_count" in post_json:
+            self._num_replies = post_json["reply_count"]
+
+        if "reply_to_post_number" in post_json:
+            self._reply_to_number = post_json["reply_to_post_number"]
 
     def __str__(self):
         """Display post as invalid or by its id."""
@@ -79,3 +89,11 @@ class DiscoursePost:
     def get_data(self):
         """Get the raw data from the post."""
         return self._data
+
+    def get_num_replies(self):
+        """Get the number of post replies to this post."""
+        return self._num_replies
+
+    def get_reply_to_number(self):
+        """Get the post number that this post is a reply to if any."""
+        return self._reply_to_number
