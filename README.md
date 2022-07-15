@@ -1,5 +1,6 @@
 # Discourse Triage
 
+[![CI](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml/badge.svg)](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml)
 [![dsctriage](https://snapcraft.io/dsctriage/badge.svg)](https://snapcraft.io/dsctriage)
 
 Output comments from [Ubuntu Discourse](https://discourse.ubuntu.com) for triage. This script is used by the Ubuntu
