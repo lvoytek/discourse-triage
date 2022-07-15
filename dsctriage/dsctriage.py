@@ -45,7 +45,7 @@ def show_header(category_name, pretty_start_date, pretty_end_date):
         else ('between ' + str(pretty_start_date) + ' and ' + str(pretty_end_date) + ' inclusive')
 
     logging.info('Discourse Comment Triage Helper')
-    logging.info('Showing comments belonging to the %s category, updated %s' % (str(category_name), date_range_info))
+    logging.info('Showing comments belonging to the %s category, updated %s', str(category_name), date_range_info)
 
 
 def create_hyperlink(url, text):
@@ -70,17 +70,17 @@ def print_single_comment(topic_string, post, tags, date_updated, post_url, short
 
     post_str += ' - '
 
-    base_id_str = 'id: %-6s' % str(post.get_id())
+    base_id_str = f'id: {str(post.get_id()):-6s}'
 
     if shorten_links:
         post_str += create_hyperlink(post_url, base_id_str)
     else:
         post_str += base_id_str
 
-    post_str += ' %-3s ' % tags
+    post_str += f' {tags:-3s} '
     post_str += date_updated.strftime('%Y-%m-%d')
 
-    post_str += ' %-18s' % post.get_author_name()
+    post_str += f' {post.get_author_name():-18s}'
 
     if not shorten_links:
         post_str += ' [' + post_url + ']'
@@ -96,9 +96,9 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
         post_list = []
         # Get relevant posts for a topic and add tags
         posts = topic.get_posts()
-        for i in range(len(posts)):
-            creation_time = posts[i].get_creation_time()
-            update_time = posts[i].get_update_time()
+        for i, post in enumerate(posts):
+            creation_time = post.get_creation_time()
+            update_time = post.get_update_time()
 
             if (creation_time != update_time) and (start <= update_time < end):
                 post_list.append((i, 'U', update_time))
@@ -106,9 +106,9 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
                 post_list.append((i, 'N', creation_time))
 
         # Display first post for a topic with topic name, then all subsequent with blank space
-        for i in range(len(post_list)):
-            url = dscfinder.get_post_url(topic, post_list[i][0])
-            print_single_comment(topic.get_name(), posts[post_list[i][0]], post_list[i][1], post_list[i][2], url,
+        for i, post_item in enumerate(post_list):
+            url = dscfinder.get_post_url(topic, post_item[0])
+            print_single_comment(topic.get_name(), posts[post_item[0]], post_item[1], post_item[2], url,
                                  shorten_links, i == 0)
 
             if open_in_browser:
