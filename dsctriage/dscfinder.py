@@ -1,3 +1,4 @@
+"""Discourse API handler module."""
 from urllib import request
 from urllib.error import HTTPError
 import json
@@ -31,6 +32,11 @@ TOPIC_POST_LIST_JSON_URL = (
 
 
 def get_post_by_id(post_id):
+    """
+    Download post data for a given id and return it as a DiscoursePost object.
+
+    Returns None if download fails or id is invalid.
+    """
     post_url = POST_JSON_URL.replace('#id', str(post_id))
 
     try:
@@ -42,6 +48,11 @@ def get_post_by_id(post_id):
 
 
 def get_category_by_id(category_id):
+    """
+    Download category data for a given id and return it as a DiscourseCategory object.
+
+    Returns None if download fails or id is invalid.
+    """
     category_url = CATEGORY_JSON_URL.replace('#id', str(category_id))
 
     try:
@@ -57,6 +68,11 @@ def get_category_by_id(category_id):
 
 
 def get_category_by_name(category_name):
+    """
+    Download category data for a given category name (case-insensitive) and return it as a DiscourseCategory object.
+
+    Returns None if download fails or name is invalid.
+    """
     try:
         with request.urlopen(CATEGORY_LIST_JSON_URL) as url_data:
             json_output = json.loads(url_data.read().decode())
@@ -71,6 +87,7 @@ def get_category_by_name(category_name):
 
 
 def add_posts_to_topic(topic):
+    """Download data for all posts under a given topic and add them as DiscoursePosts to that topic."""
     topic_url = TOPIC_POST_LIST_JSON_URL.replace('#id', str(topic.get_id()))
 
     try:
@@ -88,6 +105,7 @@ def add_posts_to_topic(topic):
 
 
 def add_topics_to_category(category):
+    """Download data for all topics under a given category and add them as DiscourseTopics to that category."""
     category_url = CATEGORY_TOPIC_LIST_JSON_URL.replace('#id', str(category.get_id()))
 
     try:
@@ -105,12 +123,12 @@ def add_topics_to_category(category):
 
 
 def get_topic_url(topic):
-    """Get the human-readable site url of a given topic"""
+    """Get the human-readable site url of a given topic."""
     return DISCOURSE_URL + "/t/" + str(topic.get_id())
 
 
 def get_post_url(topic, post_index):
-    """Get the human-readable site url of a post belonging to a given topic"""
+    """Get the human-readable site url of a post belonging to a given topic."""
     url = get_topic_url(topic)
     posts = topic.get_posts()
 

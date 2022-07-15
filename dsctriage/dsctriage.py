@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Discourse Triage frontend."""
 
 import argparse
 import sys
@@ -17,9 +18,10 @@ except ImportError:
 
 def parse_dates(start=None, end=None):
     """
-    Validate date range and update to defaults if needed
-    Default start date is 1 week ago to the day
-    Default end date is today
+    Validate date range and update to defaults if needed.
+
+    Default start date is 1 week ago to the day.
+    Default end date is today.
     """
     if start is None:
         last_week = datetime.now().date() - timedelta(weeks=1)
@@ -37,7 +39,7 @@ def parse_dates(start=None, end=None):
 
 
 def show_header(category_name, pretty_start_date, pretty_end_date):
-    """Show a dynamic header explaining results"""
+    """Show a dynamic header explaining results."""
     date_range_info = ('on ' + str(pretty_start_date)) \
         if pretty_start_date == pretty_end_date \
         else ('between ' + str(pretty_start_date) + ' and ' + str(pretty_end_date) + ' inclusive')
@@ -47,13 +49,13 @@ def show_header(category_name, pretty_start_date, pretty_end_date):
 
 
 def create_hyperlink(url, text):
-    """Formats text into a hyperlink using ANSI escape codes."""
+    """Format text into a hyperlink using ANSI escape codes."""
     return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
 
 
 def print_single_comment(topic_string, post, tags, date_updated, post_url, shorten_links, show_topic_name,
                          topic_name_length=25):
-    """Display info on a single post in readable format"""
+    """Display info on a single post in readable format."""
     post_str = ''
     if show_topic_name:
         if len(topic_string) > topic_name_length:
@@ -86,7 +88,7 @@ def print_single_comment(topic_string, post, tags, date_updated, post_url, short
 
 
 def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
-    """Display relevant posts in a readable format"""
+    """Display relevant posts in a readable format."""
     initial_browser_open = True
 
     for topic in category.get_topics():
@@ -120,7 +122,7 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
 
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
          log_stream=sys.stdout):
-    """Download contents of a given category, find relevant posts, print them to console"""
+    """Download contents of a given category, find relevant posts, print them to console."""
     category = dscfinder.get_category_by_name(category_name)
 
     if category is None:
@@ -155,7 +157,7 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
 
 
 def launch():
-    """Launch discourse-triage via the command line with given arguments"""
+    """Launch discourse-triage via the command line with given arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument('start_date',
                         nargs='?',
