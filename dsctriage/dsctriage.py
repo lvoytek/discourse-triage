@@ -70,17 +70,17 @@ def print_single_comment(topic_string, post, tags, date_updated, post_url, short
 
     post_str += ' - '
 
-    base_id_str = f'id: {str(post.get_id()):-6s}'
+    base_id_str = f'id: {str(post.get_id()):<6}'
 
     if shorten_links:
         post_str += create_hyperlink(post_url, base_id_str)
     else:
         post_str += base_id_str
 
-    post_str += f' {tags:-3s} '
+    post_str += f' {tags:<3} '
     post_str += date_updated.strftime('%Y-%m-%d')
 
-    post_str += f' {post.get_author_name():-18s}'
+    post_str += f' {post.get_author_name():<18}'
 
     if not shorten_links:
         post_str += ' [' + post_url + ']'
