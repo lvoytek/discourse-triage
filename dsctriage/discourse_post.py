@@ -97,3 +97,6 @@ class DiscoursePost:
     def get_reply_to_number(self):
         """Get the post number that this post is a reply to if any."""
         return self._reply_to_number
+
+    def is_main_post_for_topic(self):
+        return self._post_number == 1
