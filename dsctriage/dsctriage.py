@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+from enum import Enum
 from datetime import datetime, timedelta, timezone
 import time
 import re
@@ -14,6 +15,12 @@ try:
     from alive_progress import alive_bar
 except ImportError:
     alive_bar = None
+
+
+class PostStatus(Enum):
+    UNCHANGED = 0
+    NEW = 1
+    UPDATED = 2
 
 
 def parse_dates(start=None, end=None):
@@ -54,33 +61,61 @@ def create_hyperlink(url, text):
 
 
 # pylint: disable=too-many-arguments
-def print_single_comment(topic_string, post, tags, date_updated, post_url, shorten_links, topic_name_length=80):
+def print_single_comment(post, status, date_updated, post_url, shorten_links):
     """Display info on a single post in readable format."""
-    post_str = ''
-    if post.is_main_post_for_topic():
-        if len(topic_string) > topic_name_length:
-            post_str += topic_string[0:topic_name_length - 1]
-            post_str += '…'
-        else:
-            post_str += topic_string
-            post_str += ' ' * (topic_name_length - len(topic_string))
-    else:
-        post_str += '└── '
+    post_str = '└── '
 
-        base_id_str = f'id: {str(post.get_id()):<6}'
+    if status == PostStatus.UPDATED:
+        post_str += '* '
+    elif status == PostStatus.NEW:
+        post_str += '+ '
+
+    base_id_str = f'id: {str(post.get_id()):<6}'
+
+    if shorten_links:
+        post_str += create_hyperlink(post_url, base_id_str)
+    else:
+        post_str += base_id_str
+
+    post_str += date_updated.strftime('%Y-%m-%d')
+
+    post_str += f' {post.get_author_name():<18}'
+
+    if not shorten_links:
+        post_str += f' [ {post_url} ]'
+
+    print(post_str)
+
+
+def print_topic_post(topic, status, date_updated, shorten_links, topic_name_length=25):
+    """Display a topic's name and recent update information if relevant"""
+    topic_string = topic.get_name()
+    topic_url = dscfinder.get_topic_url(topic)
+
+    post_str = ""
+    if status == PostStatus.UPDATED:
+        post_str += '* '
+    elif status == PostStatus.NEW:
+        post_str += '+ '
+
+    if len(topic_string) > topic_name_length:
+        topic_string = topic_string[0:topic_name_length - 1] + '…'
 
         if shorten_links:
-            post_str += create_hyperlink(post_url, base_id_str)
-        else:
-            post_str += base_id_str
+            topic_string = create_hyperlink(topic_url, topic_string)
+    else:
+        if shorten_links:
+            topic_string = create_hyperlink(topic_url, topic_string)
+        topic_string += ' ' * (topic_name_length - len(topic_string))
 
-        post_str += f' {tags:<3} '
+    post_str += topic_string
+
+    if date_updated is not None:
+        post_str += ' -> '
         post_str += date_updated.strftime('%Y-%m-%d')
 
-        post_str += f' {post.get_author_name():<18}'
-
-        if not shorten_links:
-            post_str += ' [' + post_url + ']'
+    if not shorten_links:
+        post_str += f' [ {topic_url} ]'
 
     print(post_str)
 
@@ -98,16 +133,20 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
             update_time = post.get_update_time()
 
             if (creation_time != update_time) and (start <= update_time < end):
-                post_list.append((i, 'U', update_time))
+                post_list.append((i, PostStatus.UPDATED, update_time))
             elif start <= creation_time < end:
-                post_list.append((i, 'N', creation_time))
+                post_list.append((i, PostStatus.NEW, creation_time))
             elif post.is_main_post_for_topic():
-                post_list.append((i, '', None))
+                post_list.append((i, PostStatus.UNCHANGED, None))
 
         # Display main post for a topic with topic name, then all subsequent with blank space
         for post_item in post_list:
             url = dscfinder.get_post_url(topic, post_item[0])
-            print_single_comment(topic.get_name(), posts[post_item[0]], post_item[1], post_item[2], url, shorten_links)
+
+            if posts[post_item[0]].is_main_post_for_topic():
+                print_topic_post(topic, post_item[1], post_item[2], shorten_links)
+            else:
+                print_single_comment(posts[post_item[0]], post_item[1], post_item[2], url, shorten_links)
 
             if open_in_browser:
                 if initial_browser_open:
