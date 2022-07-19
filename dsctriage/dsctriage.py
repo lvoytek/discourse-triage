@@ -18,9 +18,38 @@ except ImportError:
 
 
 class PostStatus(Enum):
+    """Post update status enum."""
+
     UNCHANGED = 0
     NEW = 1
     UPDATED = 2
+
+
+class PostWithMetadata:
+    """A discourse post with additional metadata about its replies, url, and update date."""
+
+    def __init__(self, post, status, url, update_date=None):
+        """Combine a post with status, url, and update date metadata."""
+        self.post = post
+        self.status = status
+        self.url = url
+        self.update_date = update_date
+        self.used = False
+        self.contains_relevant_posts = False
+        self.replies = []
+
+    def __str__(self):
+        """Display post id and metadata."""
+        meta_tags = ''
+        if self.used:
+            meta_tags += 'u'
+        if self.contains_relevant_posts:
+            meta_tags += 'r'
+        return f'{str(self.post)}: {("unchanged", "new", "updated")[self.status.value]} - {meta_tags}'
+
+    def add_reply(self, meta_post):
+        """Add a reply to the list of replies to this post."""
+        self.replies.append(meta_post)
 
 
 def parse_dates(start=None, end=None):
@@ -60,43 +89,54 @@ def create_hyperlink(url, text):
     return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
 
 
-# pylint: disable=too-many-arguments
+def set_relevant_post_metadata(post_with_meta):
+    """Recursively check if a post or its replies contain updates and mark its metadata accordingly."""
+    is_relevant = False
+
+    for reply in post_with_meta.replies:
+        is_relevant = is_relevant or set_relevant_post_metadata(reply)
+
+    is_relevant = is_relevant or (post_with_meta.status != PostStatus.UNCHANGED)
+    post_with_meta.contains_relevant_posts = is_relevant
+
+    return is_relevant
+
+
 def print_single_comment(post, status, date_updated, post_url, shorten_links):
     """Display info on a single post in readable format."""
-    post_str = '└── '
-
+    status_str = ''
     if status == PostStatus.UPDATED:
-        post_str += '* '
+        status_str = '*'
     elif status == PostStatus.NEW:
-        post_str += '+ '
+        status_str = '+'
 
-    base_id_str = f'id: {str(post.get_id()):<6}'
+    base_id_str = str(post.get_id())
+    url_str = ''
 
     if shorten_links:
-        post_str += create_hyperlink(post_url, base_id_str)
+        base_id_str = create_hyperlink(post_url, base_id_str)
     else:
-        post_str += base_id_str
+        url_str = f'({post_url})'
 
-    post_str += date_updated.strftime('%Y-%m-%d')
+    date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
 
-    post_str += f' {post.get_author_name():<18}'
-
-    if not shorten_links:
-        post_str += f' [ {post_url} ]'
+    post_str = f'{status_str}{base_id_str} [{post.get_author_name()}{date_str}] {url_str}'
 
     print(post_str)
 
 
-def print_topic_post(topic, status, date_updated, shorten_links, topic_name_length=25):
-    """Display a topic's name and recent update information if relevant"""
+def print_topic_post(topic, status, date_updated, author, shorten_links, topic_name_length=25):
+    """Display a topic's name and recent update information if relevant."""
     topic_string = topic.get_name()
     topic_url = dscfinder.get_topic_url(topic)
 
-    post_str = ""
+    status_str = ''
     if status == PostStatus.UPDATED:
-        post_str += '* '
+        status_str = '*'
     elif status == PostStatus.NEW:
-        post_str += '+ '
+        status_str = '+'
+    else:
+        topic_name_length += 1
 
     if len(topic_string) > topic_name_length:
         topic_string = topic_string[0:topic_name_length - 1] + '…'
@@ -108,16 +148,75 @@ def print_topic_post(topic, status, date_updated, shorten_links, topic_name_leng
             topic_string = create_hyperlink(topic_url, topic_string)
         topic_string += ' ' * (topic_name_length - len(topic_string))
 
-    post_str += topic_string
+    date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
+    url_str = '' if shorten_links else f'({topic_url})'
 
-    if date_updated is not None:
-        post_str += ' -> '
-        post_str += date_updated.strftime('%Y-%m-%d')
-
-    if not shorten_links:
-        post_str += f' [ {topic_url} ]'
+    post_str = f'{status_str}{topic_string} [{author}{date_str}] {url_str}'
 
     print(post_str)
+
+
+def print_comment_chain(post_with_meta, reply_level, shorten_links, chain_list):
+    """Display a chain of comments recursively."""
+    post_with_meta.used = True
+    if post_with_meta.contains_relevant_posts:
+        if len(chain_list) > 0:
+            indent_str = chain_list[0]
+            for indent in chain_list[1:]:
+                indent_str += '  ' + indent
+            print(indent_str, end='─ ')
+        print_single_comment(post_with_meta.post, post_with_meta.status, post_with_meta.update_date, post_with_meta.url,
+                             shorten_links)
+
+        if chain_list[-1] == '├':
+            chain_list[-1] = '│'
+        elif chain_list[-1] == '└':
+            chain_list[-1] = ' '
+
+        chain_list.append('├')
+
+        # find the last relevant reply
+        last_relevant_reply_index = len(post_with_meta.replies) - 1
+        for i, reply in reversed(list(enumerate(post_with_meta.replies))):
+            if reply.contains_relevant_posts:
+                last_relevant_reply_index -= i
+                break
+
+        # iterate through replies
+        for i, reply in enumerate(post_with_meta.replies):
+            if i == last_relevant_reply_index:
+                chain_list[-1] = '└'
+                print_comment_chain(reply, reply_level + 1, shorten_links, chain_list)
+                break
+            print_comment_chain(reply, reply_level + 1, shorten_links, chain_list)
+
+        chain_list.pop()
+
+
+def print_comments_within_topic(topic, post_metadata_list, shorten_links):
+    """Display a topic and its relevant comments, if any."""
+    # start by finding the main topic post if it exists and print it alongside the topic name
+    main_topic_post = None
+    for post_with_meta in post_metadata_list:
+        if post_with_meta.post.is_main_post_for_topic():
+            main_topic_post = post_with_meta
+            break
+
+    if main_topic_post:
+        print_topic_post(topic, main_topic_post.status, main_topic_post.update_date,
+                         main_topic_post.post.get_author_name(), shorten_links)
+        main_topic_post.used = True
+    else:
+        print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
+
+    # print all additional comments that have either been updated or contain updated replies
+    for post_with_meta in post_metadata_list[:-1]:
+        if not post_with_meta.used and set_relevant_post_metadata(post_with_meta):
+            print_comment_chain(post_with_meta, 0, shorten_links, ['├'])
+
+    if len(post_metadata_list) > 0 and not post_metadata_list[-1].used and set_relevant_post_metadata(
+            post_metadata_list[-1]):
+        print_comment_chain(post_metadata_list[-1], 0, shorten_links, ['└'])
 
 
 def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
@@ -125,30 +224,41 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
     initial_browser_open = True
 
     for topic in category.get_topics():
-        post_list = []
-        # Get relevant posts for a topic and add tags
+        print_topic = False
+        post_metadata_list = []
+        # Get relevant posts for a topic and add metadata
         posts = topic.get_posts()
         for i, post in enumerate(posts):
             creation_time = post.get_creation_time()
             update_time = post.get_update_time()
+            url = dscfinder.get_post_url(topic, i)
 
             if (creation_time != update_time) and (start <= update_time < end):
-                post_list.append((i, PostStatus.UPDATED, update_time))
+                post_metadata_list.append(PostWithMetadata(post, PostStatus.UPDATED, url, update_time))
+                print_topic = True
             elif start <= creation_time < end:
-                post_list.append((i, PostStatus.NEW, creation_time))
-            elif post.is_main_post_for_topic():
-                post_list.append((i, PostStatus.UNCHANGED, None))
-
-        # Display main post for a topic with topic name, then all subsequent with blank space
-        for post_item in post_list:
-            url = dscfinder.get_post_url(topic, post_item[0])
-
-            if posts[post_item[0]].is_main_post_for_topic():
-                print_topic_post(topic, post_item[1], post_item[2], shorten_links)
+                post_metadata_list.append(PostWithMetadata(post, PostStatus.NEW, url, creation_time))
+                print_topic = True
             else:
-                print_single_comment(posts[post_item[0]], post_item[1], post_item[2], url, shorten_links)
+                post_metadata_list.append(PostWithMetadata(post, PostStatus.UNCHANGED, url))
 
-            if open_in_browser:
+        # organize reply structure, remove replies from list, and open in browser if requested
+        final_meta_post_list = []
+        for post_item in post_metadata_list:
+            reply_to_val = post_item.post.get_reply_to_number()
+
+            if reply_to_val:
+                for replied_to_post in post_metadata_list:
+                    if replied_to_post.post.get_post_number() == reply_to_val:
+                        replied_to_post.add_reply(post_item)
+
+                        if replied_to_post.post.is_main_post_for_topic():
+                            final_meta_post_list.append(post_item)
+                        break
+            else:
+                final_meta_post_list.append(post_item)
+
+            if post_item.status != PostStatus.UNCHANGED and open_in_browser:
                 if initial_browser_open:
                     initial_browser_open = False
                     webbrowser.open(url)
@@ -156,6 +266,10 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
                 else:
                     webbrowser.open_new_tab(url)
                     time.sleep(1.2)
+
+        # print topic if it contains any updates
+        if print_topic:
+            print_comments_within_topic(topic, final_meta_post_list, shorten_links)
 
 
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
