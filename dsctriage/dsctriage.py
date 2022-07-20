@@ -182,10 +182,10 @@ def print_comment_chain(post_with_meta, shorten_links, chain_list):
 
         # find the last relevant reply
         last_relevant_reply_index = len(post_with_meta.replies) - 1
-        for i, reply in reversed(list(enumerate(post_with_meta.replies))):
+        for reply in reversed(post_with_meta.replies):
             if reply.contains_relevant_posts:
-                last_relevant_reply_index -= i
                 break
+            last_relevant_reply_index -= 1
 
         # iterate through replies
         for i, reply in enumerate(post_with_meta.replies):
@@ -214,13 +214,15 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
 
+    for post_with_meta in post_metadata_list:
+        set_relevant_post_metadata(post_with_meta)
+
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
-        if not post_with_meta.used and set_relevant_post_metadata(post_with_meta):
+        if not post_with_meta.used:
             print_comment_chain(post_with_meta, shorten_links, ['├'])
 
-    if len(post_metadata_list) > 0 and not post_metadata_list[-1].used and set_relevant_post_metadata(
-            post_metadata_list[-1]):
+    if len(post_metadata_list) > 0 and not post_metadata_list[-1].used:
         print_comment_chain(post_metadata_list[-1], shorten_links, ['└'])
 
 
@@ -252,7 +254,7 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
         for post_item in post_metadata_list:
             reply_to_val = post_item.post.get_reply_to_number()
 
-            if reply_to_val:
+            if reply_to_val is not None:
                 for replied_to_post in post_metadata_list:
                     if replied_to_post.post.get_post_number() == reply_to_val:
                         replied_to_post.add_reply(post_item)
