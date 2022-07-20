@@ -93,6 +93,7 @@ def add_posts_to_topic(topic):
     try:
         with request.urlopen(topic_url) as url_data:
             json_output = json.loads(url_data.read().decode())
+            # get initial set of posts from the post_stream > posts section of the JSON
             if "post_stream" in json_output and "posts" in json_output["post_stream"]:
                 for post in json_output["post_stream"]["posts"]:
                     new_post = DiscoursePost(post)
@@ -100,6 +101,19 @@ def add_posts_to_topic(topic):
                     if new_post is not None:
                         topic.add_post(new_post)
 
+            # not all posts always show up in the posts section, so download remainder from the stream section
+            if "post_stream" in json_output and "stream" in json_output["post_stream"]:
+                for post_id in json_output["post_stream"]["stream"]:
+                    post_exists = False
+                    for post in topic.get_posts():
+                        if str(post_id) == str(post.get_id()):
+                            post_exists = True
+                            break
+
+                    if not post_exists:
+                        new_post = get_post_by_id(post_id)
+                        if new_post:
+                            topic.add_post(new_post)
     except HTTPError:
         pass
 
