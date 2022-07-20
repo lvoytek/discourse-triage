@@ -89,6 +89,11 @@ def create_hyperlink(url, text):
     return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
 
 
+def create_author_str(post):
+    """Create a formatted author string based on either name or username."""
+    return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
+
+
 def set_relevant_post_metadata(post_with_meta):
     """Recursively check if a post or its replies contain updates and mark its metadata accordingly."""
     is_relevant = False
@@ -120,7 +125,7 @@ def print_single_comment(post, status, date_updated, post_url, shorten_links):
 
     date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
 
-    post_str = f'{status_str}{base_id_str} [{post.get_author_name()}{date_str}] {url_str}'
+    post_str = f'{status_str}{base_id_str} [{create_author_str(post)}{date_str}] {url_str}'
 
     print(post_str)
 
@@ -156,7 +161,7 @@ def print_topic_post(topic, status, date_updated, author, shorten_links, topic_n
     print(post_str)
 
 
-def print_comment_chain(post_with_meta, reply_level, shorten_links, chain_list):
+def print_comment_chain(post_with_meta, shorten_links, chain_list):
     """Display a chain of comments recursively."""
     post_with_meta.used = True
     if post_with_meta.contains_relevant_posts:
@@ -186,9 +191,9 @@ def print_comment_chain(post_with_meta, reply_level, shorten_links, chain_list):
         for i, reply in enumerate(post_with_meta.replies):
             if i == last_relevant_reply_index:
                 chain_list[-1] = '└'
-                print_comment_chain(reply, reply_level + 1, shorten_links, chain_list)
+                print_comment_chain(reply, shorten_links, chain_list)
                 break
-            print_comment_chain(reply, reply_level + 1, shorten_links, chain_list)
+            print_comment_chain(reply, shorten_links, chain_list)
 
         chain_list.pop()
 
@@ -204,7 +209,7 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
 
     if main_topic_post:
         print_topic_post(topic, main_topic_post.status, main_topic_post.update_date,
-                         main_topic_post.post.get_author_name(), shorten_links)
+                         create_author_str(main_topic_post.post), shorten_links)
         main_topic_post.used = True
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
@@ -212,11 +217,11 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
         if not post_with_meta.used and set_relevant_post_metadata(post_with_meta):
-            print_comment_chain(post_with_meta, 0, shorten_links, ['├'])
+            print_comment_chain(post_with_meta, shorten_links, ['├'])
 
     if len(post_metadata_list) > 0 and not post_metadata_list[-1].used and set_relevant_post_metadata(
             post_metadata_list[-1]):
-        print_comment_chain(post_metadata_list[-1], 0, shorten_links, ['└'])
+        print_comment_chain(post_metadata_list[-1], shorten_links, ['└'])
 
 
 def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
