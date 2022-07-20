@@ -118,7 +118,7 @@ def add_posts_to_topic(topic):
         pass
 
 
-def add_topics_to_category(category):
+def add_topics_to_category(category, ignore_before_date=None):
     """Download data for all topics under a given category and add them as DiscourseTopics to that category."""
     category_url = CATEGORY_TOPIC_LIST_JSON_URL.replace('#id', str(category.get_id()))
 
@@ -129,7 +129,10 @@ def add_topics_to_category(category):
                 for topic in json_output["topic_list"]["topics"]:
                     new_topic = DiscourseTopic(topic)
 
-                    if new_topic is not None:
+                    update_time = None if new_topic is None else new_topic.get_latest_update_time()
+                    accept_date = ignore_before_date is None or update_time is None or update_time >= ignore_before_date
+
+                    if new_topic is not None and accept_date:
                         category.add_topic(new_topic)
 
     except HTTPError:

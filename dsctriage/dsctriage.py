@@ -298,7 +298,7 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
 
     show_header(category_name, pretty_start, pretty_end)
 
-    dscfinder.add_topics_to_category(category)
+    dscfinder.add_topics_to_category(category, start)
 
     topics = category.get_topics()
     if progress_bar and alive_bar is not None:

@@ -49,8 +49,9 @@ def test_create_post_from_json(post_id, name, username, data, post_number, creat
         assert str(post.get_id()) in str(post)
 
 
-@pytest.mark.parametrize('topic_id, name, slug, topic_string', [
+@pytest.mark.parametrize('topic_id, name, slug, update_time, topic_string', [
     (11522, 'Virtualization - libvirt', 'virtualization-libvirt',
+     datetime.datetime(2022, 6, 13, 17, 56, 31, 210000, tzinfo=datetime.timezone.utc),
      '{"id":11522,"title":"Virtualization - libvirt","fancy_title":"Virtualization - libvirt",'
      '"slug":"virtualization-libvirt","posts_count":10,"reply_count":5,"highest_post_number":10,"image_url":null,'
      '"created_at":"2019-06-24T11:20:59.936Z","last_posted_at":"2022-06-13T17:56:31.210Z","bumped":true,'
@@ -63,10 +64,10 @@ def test_create_post_from_json(post_id, name, username, data, post_number, creat
      '"primary_group_id":null},{"extras":null,"description":"Frequent Poster","user_id":3783,"primary_group_id":49},'
      '{"extras":null,"description":"Frequent Poster","user_id":10864,"primary_group_id":null},{"extras":"latest",'
      '"description":"Most Recent Poster","user_id":19034,"primary_group_id":null}]}'),
-    (None, None, None, '{}'),
-    ('', '', '', '{"id":"","title":"","slug":""}')
+    (None, None, None, None, '{}'),
+    ('', '', '', None, '{"id":"","title":"","slug":"", "last_posted_at":""}')
 ])
-def test_create_topic_from_json(topic_id, name, slug, topic_string):
+def test_create_topic_from_json(topic_id, name, slug, update_time, topic_string):
     """Test that DiscourseTopic extracts json correctly."""
     topic_json = json.loads(topic_string)
     topic = DiscourseTopic(topic_json)

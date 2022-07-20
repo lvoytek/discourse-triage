@@ -1,4 +1,5 @@
 """DiscourseTopic class."""
+from datetime import datetime
 from .discourse_post import DiscoursePost
 
 
@@ -14,6 +15,7 @@ class DiscourseTopic:
         self._id = None
         self._name = None
         self._slug = None
+        self._latest_update_time = None
 
         if "id" in topic_json:
             self._id = topic_json["id"]
@@ -23,6 +25,14 @@ class DiscourseTopic:
 
         if "slug" in topic_json:
             self._slug = topic_json["slug"]
+
+        try:
+            if "bumped" in topic_json and "bumped_at" in topic_json:
+                self._latest_update_time = datetime.fromisoformat(topic_json["bumped_at"].replace('Z', '+00:00'))
+            elif "last_posted_at" in topic_json:
+                self._latest_update_time = datetime.fromisoformat(topic_json["last_posted_at"].replace('Z', '+00:00'))
+        except (OSError,  ValueError):
+            pass
 
         self._posts = []
 
@@ -54,3 +64,7 @@ class DiscourseTopic:
     def get_posts(self):
         """Get all posts contained in the topic."""
         return self._posts
+
+    def get_latest_update_time(self):
+        """Get the most recent update time as a DateTime."""
+        return self._latest_update_time
