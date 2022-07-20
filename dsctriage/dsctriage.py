@@ -214,9 +214,6 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
 
-    for post_with_meta in post_metadata_list:
-        set_relevant_post_metadata(post_with_meta)
-
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
         if not post_with_meta.used:
@@ -273,6 +270,9 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
                 else:
                     webbrowser.open_new_tab(url)
                     time.sleep(1.2)
+
+        for post in post_metadata_list:
+            set_relevant_post_metadata(post)
 
         # print topic if it contains any updates
         if print_topic:
