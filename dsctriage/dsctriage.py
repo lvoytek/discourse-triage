@@ -127,6 +127,7 @@ def print_single_comment(post, status, date_updated, post_url, shorten_links):
     print(post_str)
 
 
+# pylint: disable=too-many-arguments
 def print_topic_post(topic, status, date_updated, author, shorten_links, topic_name_length=25):
     """Display a topic's name and recent update information if relevant."""
     topic_string = topic.get_name()
@@ -219,6 +220,30 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
         print_comment_chain(post_metadata_list[-1], shorten_links, ['└'])
 
 
+def create_post_with_metadata(post, start, end, url):
+    """Add metadata to a post based on whether its creation or update time is relevant."""
+    creation_time = post.get_creation_time()
+    update_time = post.get_update_time()
+
+    if (creation_time != update_time) and (start <= update_time < end):
+        return PostWithMetadata(post, PostStatus.UPDATED, url, update_time)
+
+    if start <= creation_time < end:
+        return PostWithMetadata(post, PostStatus.NEW, url, creation_time)
+
+    return PostWithMetadata(post, PostStatus.UNCHANGED, url)
+
+
+def get_post_with_metadata_from_post_id(post_id, post_metadata_list):
+    """Find a post in a list of posts with metadata based on its id, return None if it does not exist."""
+    if post_id is not None:
+        for post_with_meta in post_metadata_list:
+            if post_with_meta.post.get_post_number() == post_id:
+                return post_with_meta
+
+    return None
+
+
 def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
     """Display relevant posts in a readable format."""
     initial_browser_open = True
@@ -227,48 +252,39 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
         print_topic = False
         post_metadata_list = []
         # Get relevant posts for a topic and add metadata
-        posts = topic.get_posts()
-        for i, post in enumerate(posts):
-            creation_time = post.get_creation_time()
-            update_time = post.get_update_time()
-            url = dscfinder.get_post_url(topic, i)
+        for i, post in enumerate(topic.get_posts()):
+            new_meta_post = create_post_with_metadata(post, start, end, dscfinder.get_post_url(topic, i))
+            post_metadata_list.append(new_meta_post)
 
-            if (creation_time != update_time) and (start <= update_time < end):
-                post_metadata_list.append(PostWithMetadata(post, PostStatus.UPDATED, url, update_time))
+            if new_meta_post.status != PostStatus.UNCHANGED:
                 print_topic = True
-            elif start <= creation_time < end:
-                post_metadata_list.append(PostWithMetadata(post, PostStatus.NEW, url, creation_time))
-                print_topic = True
-            else:
-                post_metadata_list.append(PostWithMetadata(post, PostStatus.UNCHANGED, url))
 
         # organize reply structure, remove replies from list, and open in browser if requested
         final_meta_post_list = []
         for post_item in post_metadata_list:
-            reply_to_val = post_item.post.get_reply_to_number()
+            replied_to_post = get_post_with_metadata_from_post_id(post_item.post.get_reply_to_number(),
+                                                                  post_metadata_list)
 
-            if reply_to_val is not None:
-                for replied_to_post in post_metadata_list:
-                    if replied_to_post.post.get_post_number() == reply_to_val:
-                        replied_to_post.add_reply(post_item)
-
-                        if replied_to_post.post.is_main_post_for_topic():
-                            final_meta_post_list.append(post_item)
-                        break
-            else:
+            # post is not a reply or is a reply to the main topic, add to top level to recurse through
+            if replied_to_post is None or replied_to_post.post.is_main_post_for_topic():
                 final_meta_post_list.append(post_item)
 
+            # Add this post as a reply to the found reply-to post
+            if replied_to_post is not None:
+                replied_to_post.add_reply(post_item)
+
+            # open in browser if needed
             if post_item.status != PostStatus.UNCHANGED and open_in_browser:
                 if initial_browser_open:
                     initial_browser_open = False
-                    webbrowser.open(url)
+                    webbrowser.open(post_item.url)
                     time.sleep(5)
                 else:
-                    webbrowser.open_new_tab(url)
+                    webbrowser.open_new_tab(post_item.url)
                     time.sleep(1.2)
 
-        for post in post_metadata_list:
-            set_relevant_post_metadata(post)
+        for post_item in post_metadata_list:
+            set_relevant_post_metadata(post_item)
 
         # print topic if it contains any updates
         if print_topic:

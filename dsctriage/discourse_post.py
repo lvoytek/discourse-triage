@@ -99,4 +99,5 @@ class DiscoursePost:
         return self._reply_to_number
 
     def is_main_post_for_topic(self):
+        """Check if this post is the main post a given topic is about."""
         return self._post_number == 1

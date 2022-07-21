@@ -74,6 +74,7 @@ def test_create_topic_from_json(topic_id, name, slug, update_time, topic_string)
     assert topic.get_id() == topic_id
     assert topic.get_name() == name
     assert topic.get_slug() == slug
+    assert topic.get_latest_update_time() == update_time
 
     if topic_id is None or name is None:
         assert str(topic) == 'Invalid Topic'
