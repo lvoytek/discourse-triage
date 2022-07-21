@@ -34,15 +34,12 @@ class PostWithMetadata:
         self.status = status
         self.url = url
         self.update_date = update_date
-        self.used = False
         self.contains_relevant_posts = False
         self.replies = []
 
     def __str__(self):
         """Display post id and metadata."""
         meta_tags = ''
-        if self.used:
-            meta_tags += 'u'
         if self.contains_relevant_posts:
             meta_tags += 'r'
         return f'{str(self.post)}: {("unchanged", "new", "updated")[self.status.value]} - {meta_tags}'
@@ -163,7 +160,6 @@ def print_topic_post(topic, status, date_updated, author, shorten_links, topic_n
 
 def print_comment_chain(post_with_meta, shorten_links, chain_list):
     """Display a chain of comments recursively."""
-    post_with_meta.used = True
     if post_with_meta.contains_relevant_posts:
         if len(chain_list) > 0:
             indent_str = chain_list[0]
@@ -173,53 +169,53 @@ def print_comment_chain(post_with_meta, shorten_links, chain_list):
         print_single_comment(post_with_meta.post, post_with_meta.status, post_with_meta.update_date, post_with_meta.url,
                              shorten_links)
 
-        if chain_list[-1] == '├':
-            chain_list[-1] = '│'
-        elif chain_list[-1] == '└':
-            chain_list[-1] = ' '
-
-        chain_list.append('├')
-
-        # find the last relevant reply
-        last_relevant_reply_index = len(post_with_meta.replies) - 1
-        for reply in reversed(post_with_meta.replies):
+        # find all relevant replies and add to list
+        relevant_replies = []
+        for reply in post_with_meta.replies:
             if reply.contains_relevant_posts:
-                break
-            last_relevant_reply_index -= 1
+                relevant_replies.append(reply)
 
-        # iterate through replies
-        for i, reply in enumerate(post_with_meta.replies):
-            if i == last_relevant_reply_index:
-                chain_list[-1] = '└'
+        if len(relevant_replies) > 0:
+            if chain_list[-1] == '├':
+                chain_list[-1] = '│'
+            elif chain_list[-1] == '└':
+                chain_list[-1] = ' '
+
+            chain_list.append('├')
+
+            # iterate through relevant replies
+            for reply in relevant_replies[:-1]:
                 print_comment_chain(reply, shorten_links, chain_list)
-                break
-            print_comment_chain(reply, shorten_links, chain_list)
 
-        chain_list.pop()
+            chain_list[-1] = '└'
+            print_comment_chain(relevant_replies[-1], shorten_links, chain_list)
+
+            chain_list.pop()
 
 
 def print_comments_within_topic(topic, post_metadata_list, shorten_links):
     """Display a topic and its relevant comments, if any."""
-    # start by finding the main topic post if it exists and print it alongside the topic name
+    # start by finding the main topic post and removing unnecessary branches by iterating over a copy of the list
     main_topic_post = None
-    for post_with_meta in post_metadata_list:
+
+    for post_with_meta in list(post_metadata_list):
         if post_with_meta.post.is_main_post_for_topic():
             main_topic_post = post_with_meta
-            break
+        elif not post_with_meta.contains_relevant_posts:
+            post_metadata_list.remove(post_with_meta)
 
-    if main_topic_post:
+    if main_topic_post is not None:
         print_topic_post(topic, main_topic_post.status, main_topic_post.update_date,
                          create_author_str(main_topic_post.post), shorten_links)
-        main_topic_post.used = True
+        post_metadata_list.remove(main_topic_post)
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
 
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
-        if not post_with_meta.used:
-            print_comment_chain(post_with_meta, shorten_links, ['├'])
+        print_comment_chain(post_with_meta, shorten_links, ['├'])
 
-    if len(post_metadata_list) > 0 and not post_metadata_list[-1].used:
+    if len(post_metadata_list) > 0:
         print_comment_chain(post_metadata_list[-1], shorten_links, ['└'])
 
 
