@@ -46,7 +46,7 @@ For example, the following, finds all posts last modified on the 10th, 11th, and
 ### Category
 If you want to find comments in a different category (see the [category list](https://discourse.ubuntu.com/categories)),
 then you can specify it with the `-c` or `--category` option. Discourse Triage will attempt to match the name with an
-existing category, case-insensitive. For example, to get comments from the last week in the `Desktop` category, run
+existing category, case-insensitive. For example, to get comments from yesterday or over the weekend in the `Desktop` category, run
 either:
 
     dsctriage -c desktop
@@ -58,7 +58,7 @@ or:
 ### Print full urls
 By default, post IDs can be clicked to open in a browser. However, if your terminal does not support the hyperlink
 format, or you just want the urls in plaintext you can use the `--fullurls` argument. This will print the url to the
-post at the end of each line. Run the following command to get the posts from the last week with their urls:
+post at the end of each line. Run the following command to get the posts from yesterday or over the weekend with their urls:
 
     dsctriage --fullurls
 

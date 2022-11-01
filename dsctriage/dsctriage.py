@@ -53,18 +53,21 @@ def parse_dates(start=None, end=None):
     """
     Validate date range and update to defaults if needed.
 
-    Default start date is 1 week ago to the day.
-    Default end date is today.
+    Default start date is yesterday or last friday if today is monday.
+    Default end date is yesterday.
     """
+    yesterday = datetime.now().date() - timedelta(days=1)
+
     if start is None:
-        last_week = datetime.now().date() - timedelta(weeks=1)
-        start = last_week.strftime('%Y-%m-%d')
+        if yesterday.weekday() != 6:
+            start = yesterday.strftime('%Y-%m-%d')
+        else:
+            start = (yesterday - timedelta(days=2)).strftime('%Y-%m-%d')
     elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', start):
         raise ValueError('Cannot parse start date: ' + str(start))
 
     if end is None:
-        today = datetime.now().date()
-        end = today.strftime('%Y-%m-%d')
+        end = yesterday.strftime('%Y-%m-%d')
     elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', end):
         raise ValueError('Cannot parse end date: ' + str(end))
 
