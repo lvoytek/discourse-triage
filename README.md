@@ -24,9 +24,7 @@ To run Discourse Triage with the default settings, open a terminal and enter:
 
     dsctriage
 
-By default, the script will find new posts in the `Server` category that were created or updated in the last 7 days and 
-display them in the terminal. Clicking on the post ID will open a given comment in a web browser. The following
-arguments can be used to change functionality.
+By default, the script will find new posts in the `Server` category that were created or updated yesterday or over the weekend and display them in the terminal. Clicking on the post ID will open a given comment in a web browser. The following arguments can be used to change functionality.
 
 ### Dates
 Dates must follow the format: `%Y-%m-%d` (e.g. 2019-12-17, 2020-05-26)
@@ -42,6 +40,15 @@ If two dates are given then all the posts created and updated on those days and 
 For example, the following, finds all posts last modified on the 10th, 11th, and 12th of September 2022:
 
     dsctriage 2022-09-10 2022-09-12
+
+#### Day Name
+The triage day name can also be provided to automatically extract the desired date range. For example, the following command will show all relevant comments from last Monday, which represents Tuesday triage:
+
+    dsctriage tuesday
+
+Running triage for Monday will show comments from last Friday and the weekend:
+
+    dsctriage mon
 
 ### Category
 If you want to find comments in a different category (see the [category list](https://discourse.ubuntu.com/categories)),
