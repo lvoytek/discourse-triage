@@ -381,8 +381,8 @@ def launch():
     parser = argparse.ArgumentParser()
     parser.add_argument('start_date',
                         nargs='?',
-                        help='date to start finding comments ' +
-                             '(e.g. 2022-04-13)')
+                        help='date or day name to start finding comments ' +
+                             '(e.g. 2022-04-13, monday, Thu)')
     parser.add_argument('end_date',
                         nargs='?',
                         help='date to end finding comments (inclusive) ' +
