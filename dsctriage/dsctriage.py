@@ -340,6 +340,17 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
             print_comments_within_topic(topic, final_meta_post_list, shorten_links)
 
 
+def print_post_in_backlog_format(post_id):
+    """Print a Discourse comment to be copied to the backlog."""
+    backlog_post = dscfinder.get_post_by_id(post_id)
+
+    if not backlog_post:
+        print(f"No post found with id {post_id}")
+    else:
+        print_single_comment(backlog_post, PostStatus.UNCHANGED, backlog_post.get_update_time(),
+                             dscfinder.get_post_url_without_topic(backlog_post), False)
+
+
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
          log_stream=sys.stdout):
     """Download contents of a given category, find relevant posts, print them to console."""
@@ -396,9 +407,14 @@ def launch():
                         help='show full URLs instead of shortcuts')
     parser.add_argument('-c', '--category', dest='category_name', default='Server',
                         help='The discourse category to find comments from')
+    parser.add_argument('-b', '--backlog', dest='backlog_post_id',
+                        help='Display a post of a given ID in a standard backlog format')
     args = parser.parse_args()
 
     date_range = {'start': args.start_date,
                   'end': args.end_date}
 
-    main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls)
+    if args.backlog_post_id:
+        print_post_in_backlog_format(args.backlog_post_id)
+    else:
+        main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls)

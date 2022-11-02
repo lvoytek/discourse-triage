@@ -144,6 +144,11 @@ def get_topic_url(topic):
     return DISCOURSE_URL + "/t/" + str(topic.get_id())
 
 
+def get_post_url_without_topic(post):
+    """Get a URL shortcut to a post based on its id alone."""
+    return DISCOURSE_URL + "/p/" + str(post.get_id())
+
+
 def get_post_url(topic, post_index):
     """Get the human-readable site url of a post belonging to a given topic."""
     url = get_topic_url(topic)
