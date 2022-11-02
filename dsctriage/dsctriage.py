@@ -49,6 +49,47 @@ class PostWithMetadata:
         self.replies.append(meta_post)
 
 
+def auto_date_range(keyword, today=None):
+    """Given a "day of week" keyword, calculate the inclusive date range.
+
+    Work out what date range the user "means" based on the Server Team's bug
+    triage process that names the day the triage is expected to be done.
+
+    Examples: "Monday triage" means the range covering the previous Friday,
+    Saturday and Sunday; "Tuesday triage" means the previous Monday only.
+
+    :param str keyword: what the user wants in the form of the name of a day of
+        the week
+    :param datetime.date today: calculations are made relative to the current
+        date. Can be overridden with this parameter for tests. Defaults to the
+        current day
+    :rtype: tuple(datetime.date, datetime.date)
+    """
+    triage_day = today or datetime.now().date()
+    triage_found = False
+
+    for _ in range(7):
+        triage_day -= timedelta(days=1)
+
+        if keyword.lower() in (datetime.strftime(triage_day, "%A").lower(),
+                               datetime.strftime(triage_day, "%a").lower()):
+            triage_found = True
+            break
+
+    if not triage_found:
+        raise ValueError("Invalid day name")
+
+    if triage_day.weekday() == 0:
+        # The day is Monday, return start of Friday and end of Sunday
+        return triage_day - timedelta(days=3), triage_day - timedelta(days=1)
+    if triage_day.weekday() < 5:
+        # Normal weekday triage, return the previous day for start and end
+        return triage_day - timedelta(days=1), triage_day - timedelta(days=1)
+
+    # Otherwise weekend was specified, no triage to do
+    raise ValueError("No triage range is specified for weekday triage")
+
+
 def parse_dates(start=None, end=None):
     """
     Validate date range and update to defaults if needed.
@@ -64,12 +105,17 @@ def parse_dates(start=None, end=None):
         else:
             start = (yesterday - timedelta(days=2)).strftime('%Y-%m-%d')
     elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', start):
-        raise ValueError('Cannot parse start date: ' + str(start))
+        try:
+            start_date, end_date = auto_date_range(start)
+            start = start_date.strftime('%Y-%m-%d')
+            end = end_date.strftime('%Y-%m-%d')
+        except ValueError as error:
+            raise ValueError(f"Cannot parse date: {start}") from error
 
     if end is None:
         end = yesterday.strftime('%Y-%m-%d')
     elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', end):
-        raise ValueError('Cannot parse end date: ' + str(end))
+        raise ValueError(f"Cannot parse end date: {str(end)}")
 
     return start, end
 
