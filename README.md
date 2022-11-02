@@ -78,3 +78,14 @@ found, they will then be opened in your default browser in their own tabs. Speci
 or:
     
     dsctriage --open
+
+### Add to backlog
+To add a specific post or comment to the backlog, a formatted line of text can be printed with the `-b` or `--backlog`
+argument. This text can then be copied to the backlog to be managed later. The following commands will show the post
+with the ID 14159:
+
+    dsctriage -b 14159
+
+or:
+
+    dsctriage --backlog 14159
