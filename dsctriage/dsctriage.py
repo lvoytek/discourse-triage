@@ -135,11 +135,6 @@ def create_hyperlink(url, text):
     return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
 
 
-def create_author_str(post):
-    """Create a formatted author string based on either name or username."""
-    return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
-
-
 def set_relevant_post_metadata(post_with_meta):
     """Recursively check if a post or its replies contain updates and mark its metadata accordingly."""
     is_relevant = False
@@ -171,7 +166,7 @@ def print_single_comment(post, status, date_updated, post_url, shorten_links):
 
     date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
 
-    post_str = f'{status_str}{base_id_str} [{create_author_str(post)}{date_str}] {url_str}'
+    post_str = f'{status_str}{base_id_str} [{dscfinder.create_editor_name_str(post)}{date_str}] {url_str}'
 
     print(post_str)
 
@@ -256,7 +251,7 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
 
     if main_topic_post is not None:
         print_topic_post(topic, main_topic_post.status, main_topic_post.update_date,
-                         create_author_str(main_topic_post.post), shorten_links)
+                         dscfinder.create_editor_name_str(main_topic_post.post), shorten_links)
         post_metadata_list.remove(main_topic_post)
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
