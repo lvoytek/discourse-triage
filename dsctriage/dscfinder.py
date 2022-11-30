@@ -14,6 +14,10 @@ POST_JSON_URL = (
         DISCOURSE_URL + '/posts/#id.json'
 )
 
+POST_LATEST_EDIT_JSON_URL = (
+        DISCOURSE_URL + '/posts/#id/revisions/latest.json'
+)
+
 CATEGORY_JSON_URL = (
         DISCOURSE_URL + '/c/#id/show.json'
 )
@@ -28,6 +32,10 @@ CATEGORY_LIST_JSON_URL = (
 
 TOPIC_POST_LIST_JSON_URL = (
         DISCOURSE_URL + '/t/#id.json'
+)
+
+USER_JSON_URL = (
+        DISCOURSE_URL + '/u/#id.json'
 )
 
 
@@ -162,4 +170,25 @@ def get_post_url(topic, post_index):
 
 def create_editor_name_str(post):
     """Create a formatted author string based on either name or username of a post's most recent editor."""
-    return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
+    author_name = post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
+
+    if post.is_main_post_for_topic():
+        revision_url = POST_LATEST_EDIT_JSON_URL.replace('#id', str(post.get_id()))
+
+        try:
+            with request.urlopen(revision_url) as url_data:
+                json_output = json.loads(url_data.read().decode())
+                if "username" in json_output:
+                    author_name = json_output["username"]
+
+                    user_url = USER_JSON_URL.replace('#id', str(json_output["username"]))
+                    with request.urlopen(user_url) as user_url_data:
+                        user_json_output = json.loads(user_url_data.read().decode())
+
+                        if "user" in user_json_output and "name" in user_json_output["user"]:
+                            author_name = user_json_output["user"]["name"]
+
+        except HTTPError:
+            pass
+
+    return author_name
