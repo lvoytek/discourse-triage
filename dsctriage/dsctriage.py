@@ -113,7 +113,7 @@ def parse_dates(start=None, end=None):
             raise ValueError(f"Cannot parse date: {start}") from error
 
     if end is None:
-        end = yesterday.strftime('%Y-%m-%d')
+        end = start
     elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', end):
         raise ValueError(f"Cannot parse end date: {str(end)}")
 
