@@ -260,7 +260,7 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
                          shorten_links)
         post_metadata_list.remove(main_topic_post)
     else:
-        print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
+        print_topic_post(topic, PostStatus.UNCHANGED, None, None, None, shorten_links)
 
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
