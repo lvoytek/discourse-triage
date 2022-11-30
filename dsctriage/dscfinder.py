@@ -168,6 +168,11 @@ def get_post_url(topic, post_index):
     return url
 
 
+def create_author_name_str(post):
+    """Create a formatted author string based on a post's original author."""
+    return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
+
+
 def create_editor_name_str(post):
     """Create a formatted author string based on either name or username of a post's most recent editor."""
     author_name = post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()

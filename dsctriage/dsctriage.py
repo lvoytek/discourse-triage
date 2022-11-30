@@ -166,13 +166,13 @@ def print_single_comment(post, status, date_updated, post_url, shorten_links):
 
     date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
 
-    post_str = f'{status_str}{base_id_str} [{dscfinder.create_editor_name_str(post)}{date_str}] {url_str}'
+    post_str = f'{status_str}{base_id_str} [{dscfinder.create_author_name_str(post)}{date_str}] {url_str}'
 
     print(post_str)
 
 
 # pylint: disable=too-many-arguments
-def print_topic_post(topic, status, date_updated, author, shorten_links, topic_name_length=25):
+def print_topic_post(topic, status, date_updated, author, editor, shorten_links, topic_name_length=25):
     """Display a topic's name and recent update information if relevant."""
     topic_string = topic.get_name()
     topic_url = dscfinder.get_topic_url(topic)
@@ -198,7 +198,7 @@ def print_topic_post(topic, status, date_updated, author, shorten_links, topic_n
     date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
     url_str = '' if shorten_links else f'({topic_url})'
 
-    post_str = f'{status_str}{topic_string} [{author}{date_str}] {url_str}'
+    post_str = f'{status_str}{topic_string} [{author if editor is None else editor}{date_str}] {url_str}'
 
     print(post_str)
 
@@ -250,8 +250,14 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
             post_metadata_list.remove(post_with_meta)
 
     if main_topic_post is not None:
-        print_topic_post(topic, main_topic_post.status, main_topic_post.update_date,
-                         dscfinder.create_editor_name_str(main_topic_post.post), shorten_links)
+        main_post_author = dscfinder.create_author_name_str(main_topic_post.post)
+        main_post_editor = None
+
+        if main_topic_post.status == PostStatus.UPDATED:
+            main_post_editor = dscfinder.create_editor_name_str(main_topic_post.post)
+
+        print_topic_post(topic, main_topic_post.status, main_topic_post.update_date, main_post_author, main_post_editor,
+                         shorten_links)
         post_metadata_list.remove(main_topic_post)
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
