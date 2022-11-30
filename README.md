@@ -30,8 +30,8 @@ By default, the script will find new posts in the `Server` category that were cr
 Dates must follow the format: `%Y-%m-%d` (e.g. 2019-12-17, 2020-05-26)
 
 #### Single Date Argument
-If only one date is given then posts from the start of that day up until today will be found. 
-For example, the following finds all posts in the `Server` category from April 27th, 2022 to today:
+If one date is given then posts from only that day will be found. 
+For example, the following finds all posts in the `Server` category from April 27th, 2022:
 
     dsctriage 2022-04-27
 
