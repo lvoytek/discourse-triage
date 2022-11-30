@@ -135,11 +135,6 @@ def create_hyperlink(url, text):
     return f"\u001b]8;;{url}\u001b\\{text}\u001b]8;;\u001b\\"
 
 
-def create_author_str(post):
-    """Create a formatted author string based on either name or username."""
-    return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
-
-
 def set_relevant_post_metadata(post_with_meta):
     """Recursively check if a post or its replies contain updates and mark its metadata accordingly."""
     is_relevant = False
@@ -171,13 +166,13 @@ def print_single_comment(post, status, date_updated, post_url, shorten_links):
 
     date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
 
-    post_str = f'{status_str}{base_id_str} [{create_author_str(post)}{date_str}] {url_str}'
+    post_str = f'{status_str}{base_id_str} [{dscfinder.create_author_name_str(post)}{date_str}] {url_str}'
 
     print(post_str)
 
 
 # pylint: disable=too-many-arguments
-def print_topic_post(topic, status, date_updated, author, shorten_links, topic_name_length=25):
+def print_topic_post(topic, status, date_updated, author, editor, shorten_links, topic_name_length=25):
     """Display a topic's name and recent update information if relevant."""
     topic_string = topic.get_name()
     topic_url = dscfinder.get_topic_url(topic)
@@ -203,7 +198,7 @@ def print_topic_post(topic, status, date_updated, author, shorten_links, topic_n
     date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
     url_str = '' if shorten_links else f'({topic_url})'
 
-    post_str = f'{status_str}{topic_string} [{author}{date_str}] {url_str}'
+    post_str = f'{status_str}{topic_string} [{author if editor is None else editor}{date_str}] {url_str}'
 
     print(post_str)
 
@@ -255,11 +250,17 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
             post_metadata_list.remove(post_with_meta)
 
     if main_topic_post is not None:
-        print_topic_post(topic, main_topic_post.status, main_topic_post.update_date,
-                         create_author_str(main_topic_post.post), shorten_links)
+        main_post_author = dscfinder.create_author_name_str(main_topic_post.post)
+        main_post_editor = None
+
+        if main_topic_post.status == PostStatus.UPDATED:
+            main_post_editor = dscfinder.create_editor_name_str(main_topic_post.post)
+
+        print_topic_post(topic, main_topic_post.status, main_topic_post.update_date, main_post_author, main_post_editor,
+                         shorten_links)
         post_metadata_list.remove(main_topic_post)
     else:
-        print_topic_post(topic, PostStatus.UNCHANGED, None, None, shorten_links)
+        print_topic_post(topic, PostStatus.UNCHANGED, None, None, None, shorten_links)
 
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
