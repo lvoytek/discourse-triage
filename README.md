@@ -3,9 +3,10 @@
 [![CI](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml/badge.svg)](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml)
 [![dsctriage](https://snapcraft.io/dsctriage/badge.svg)](https://snapcraft.io/dsctriage)
 
-Output comments from [Ubuntu Discourse](https://discourse.ubuntu.com) for triage. This script is used by the Ubuntu
-Server team to keep up with suggested fixes and issues in the [Ubuntu Server Guide](https://ubuntu.com/server/docs). It
-can, however, also be used to look into Discourse posts in other sections of Ubuntu's documentation.
+Output comments from a [Discourse](https://www.discourse.org/) server for triage. This script is used by the Ubuntu
+Server team to keep up with suggested fixes and issues in the [Ubuntu Server Guide](https://ubuntu.com/server/docs), 
+using [Ubuntu's Discourse site](https://discourse.ubuntu.com). It can, however, also be used to look into Discourse 
+posts on any Discourse server, or other sections of Ubuntu's documentation.
 
 The easiest way to install and keep dsctriage up to date is through snap:
 
@@ -50,8 +51,18 @@ Running triage for Monday will show comments from last Friday and the weekend:
 
     dsctriage mon
 
+### Server
+To use a different Discourse server/website, use the `-s` or `--site` option, along with the desired base URL. For example,
+to get yesterday's posts in the `plugin` category of [Discourse's meta site](https://meta.discourse.org/), run:
+
+    dsctriage -s https://meta.discourse.org -c plugin
+
+or:
+
+    dsctriage --site https://meta.discourse.org -c plugin
+
 ### Category
-If you want to find comments in a different category (see the [category list](https://discourse.ubuntu.com/categories)),
+If you want to find comments in a different category (see the [Ubuntu category list](https://discourse.ubuntu.com/categories)),
 then you can specify it with the `-c` or `--category` option. Discourse Triage will attempt to match the name with an
 existing category, case-insensitive. For example, to get comments from yesterday or over the weekend in the `Desktop` category, run
 either:
