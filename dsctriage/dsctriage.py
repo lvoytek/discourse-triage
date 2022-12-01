@@ -294,20 +294,27 @@ def get_post_with_metadata_from_post_id(post_id, post_metadata_list):
     return None
 
 
+def get_metadata_for_posts_of_topic(topic, start, end, site=None):
+    """Return list of posts in topic + additional metadata about their relevance and if there were relevant posts."""
+    post_metadata_list = []
+    topic_is_relevant = False
+
+    for i, post in enumerate(topic.get_posts()):
+        new_meta_post = create_post_with_metadata(post, start, end, dscfinder.get_post_url(topic, i, site))
+        post_metadata_list.append(new_meta_post)
+
+        if new_meta_post.status != PostStatus.UNCHANGED:
+            topic_is_relevant = True
+
+    return post_metadata_list, topic_is_relevant
+
+
 def print_comments(category, start, end, open_in_browser=False, shorten_links=True, site=None):
     """Display relevant posts in a readable format."""
     initial_browser_open = True
 
     for topic in category.get_topics():
-        print_topic = False
-        post_metadata_list = []
-        # Get relevant posts for a topic and add metadata
-        for i, post in enumerate(topic.get_posts()):
-            new_meta_post = create_post_with_metadata(post, start, end, dscfinder.get_post_url(topic, i, site))
-            post_metadata_list.append(new_meta_post)
-
-            if new_meta_post.status != PostStatus.UNCHANGED:
-                print_topic = True
+        post_metadata_list, print_topic = get_metadata_for_posts_of_topic(topic, start, end, site)
 
         # organize reply structure, remove replies from list, and open in browser if requested
         final_meta_post_list = []
