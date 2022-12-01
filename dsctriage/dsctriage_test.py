@@ -3,7 +3,7 @@ import datetime
 import json
 import pytest
 
-from dsctriage import DiscoursePost, DiscourseTopic, DiscourseCategory
+from dsctriage import DiscoursePost, DiscourseTopic, DiscourseCategory, dscfinder
 
 
 # pylint: disable=too-many-arguments
@@ -156,3 +156,14 @@ def test_add_topics_to_category():
     assert "not a DiscourseTopic" in str(err_2.value)
 
     assert len(category.get_topics()) == 2
+
+
+@pytest.mark.parametrize('url_out, template, id_var, site', [
+    ("https://discourse.ubuntu.com/posts/12453.json", dscfinder.POST_JSON_URL, 12453, None),
+    ("http://test/posts/1111.json", dscfinder.POST_JSON_URL, "1111", "http://test"),
+    ("https://discourse.ubuntu.com/posts/1/revisions/latest.json", dscfinder.POST_LATEST_EDIT_JSON_URL, 1, None),
+    ("https://discourse.ubuntu.com/categories.json", dscfinder.CATEGORY_LIST_JSON_URL, None, None)
+])
+def test_dscfinder_create_url(url_out, template, id_var, site):
+    """Test that dscfinder creates urls correctly."""
+    assert url_out == dscfinder.create_url(template, id_var, site)

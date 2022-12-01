@@ -6,46 +6,55 @@ from .discourse_post import DiscoursePost
 from .discourse_topic import DiscourseTopic
 from .discourse_category import DiscourseCategory
 
-DISCOURSE_URL = (
+DEFAULT_DISCOURSE_URL = (
     'https://discourse.ubuntu.com'
 )
 
 POST_JSON_URL = (
-        DISCOURSE_URL + '/posts/#id.json'
+        '#url/posts/#id.json'
 )
 
 POST_LATEST_EDIT_JSON_URL = (
-        DISCOURSE_URL + '/posts/#id/revisions/latest.json'
+        '#url/posts/#id/revisions/latest.json'
 )
 
 CATEGORY_JSON_URL = (
-        DISCOURSE_URL + '/c/#id/show.json'
+        '#url/c/#id/show.json'
 )
 
 CATEGORY_TOPIC_LIST_JSON_URL = (
-        DISCOURSE_URL + '/c/#id.json'
+        '#url/c/#id.json'
 )
 
 CATEGORY_LIST_JSON_URL = (
-        DISCOURSE_URL + '/categories.json'
+        '#url/categories.json'
 )
 
 TOPIC_POST_LIST_JSON_URL = (
-        DISCOURSE_URL + '/t/#id.json'
+        '#url/t/#id.json'
 )
 
 USER_JSON_URL = (
-        DISCOURSE_URL + '/u/#id.json'
+        '#url/u/#id.json'
 )
 
 
-def get_post_by_id(post_id):
+def create_url(template, id_var, site=None):
+    """
+    Create a URL string from an above template, a website base name, and id variable.
+
+    If the site is None then use the default.
+    """
+    return template.replace('#url', str(DEFAULT_DISCOURSE_URL if site is None else site)).replace('#id', str(id_var))
+
+
+def get_post_by_id(post_id, site=None):
     """
     Download post data for a given id and return it as a DiscoursePost object.
 
     Returns None if download fails or id is invalid.
     """
-    post_url = POST_JSON_URL.replace('#id', str(post_id))
+    post_url = create_url(POST_JSON_URL, post_id, site)
 
     try:
         with request.urlopen(post_url) as url_data:
@@ -55,13 +64,13 @@ def get_post_by_id(post_id):
         return None
 
 
-def get_category_by_id(category_id):
+def get_category_by_id(category_id, site=None):
     """
     Download category data for a given id and return it as a DiscourseCategory object.
 
     Returns None if download fails or id is invalid.
     """
-    category_url = CATEGORY_JSON_URL.replace('#id', str(category_id))
+    category_url = create_url(CATEGORY_JSON_URL, category_id, site)
 
     try:
         with request.urlopen(category_url) as url_data:
@@ -75,14 +84,14 @@ def get_category_by_id(category_id):
     return None
 
 
-def get_category_by_name(category_name):
+def get_category_by_name(category_name, site=None):
     """
     Download category data for a given category name (case-insensitive) and return it as a DiscourseCategory object.
 
     Returns None if download fails or name is invalid.
     """
     try:
-        with request.urlopen(CATEGORY_LIST_JSON_URL) as url_data:
+        with request.urlopen(create_url(CATEGORY_LIST_JSON_URL, "", site)) as url_data:
             json_output = json.loads(url_data.read().decode())
             if "category_list" in json_output and "categories" in json_output["category_list"]:
                 for category in json_output["category_list"]["categories"]:
@@ -94,9 +103,9 @@ def get_category_by_name(category_name):
     return None
 
 
-def add_posts_to_topic(topic):
+def add_posts_to_topic(topic, site=None):
     """Download data for all posts under a given topic and add them as DiscoursePosts to that topic."""
-    topic_url = TOPIC_POST_LIST_JSON_URL.replace('#id', str(topic.get_id()))
+    topic_url = create_url(TOPIC_POST_LIST_JSON_URL, topic.get_id(), site)
 
     try:
         with request.urlopen(topic_url) as url_data:
@@ -119,16 +128,16 @@ def add_posts_to_topic(topic):
                             break
 
                     if not post_exists:
-                        new_post = get_post_by_id(post_id)
+                        new_post = get_post_by_id(post_id, site)
                         if new_post:
                             topic.add_post(new_post)
     except HTTPError:
         pass
 
 
-def add_topics_to_category(category, ignore_before_date=None):
+def add_topics_to_category(category, ignore_before_date=None, site=None):
     """Download data for all topics under a given category and add them as DiscourseTopics to that category."""
-    category_url = CATEGORY_TOPIC_LIST_JSON_URL.replace('#id', str(category.get_id()))
+    category_url = create_url(CATEGORY_TOPIC_LIST_JSON_URL, category.get_id(), site)
 
     try:
         with request.urlopen(category_url) as url_data:
@@ -147,19 +156,19 @@ def add_topics_to_category(category, ignore_before_date=None):
         pass
 
 
-def get_topic_url(topic):
+def get_topic_url(topic, site=None):
     """Get the human-readable site url of a given topic."""
-    return DISCOURSE_URL + "/t/" + str(topic.get_id())
+    return f"{DEFAULT_DISCOURSE_URL if site is None else site}/t/{str(topic.get_id())}"
 
 
-def get_post_url_without_topic(post):
+def get_post_url_without_topic(post, site=None):
     """Get a URL shortcut to a post based on its id alone."""
-    return DISCOURSE_URL + "/p/" + str(post.get_id())
+    return f"{DEFAULT_DISCOURSE_URL if site is None else site}/p/{str(post.get_id())}"
 
 
-def get_post_url(topic, post_index):
+def get_post_url(topic, post_index, site=None):
     """Get the human-readable site url of a post belonging to a given topic."""
-    url = get_topic_url(topic)
+    url = get_topic_url(topic, site)
     posts = topic.get_posts()
 
     if 0 <= post_index < len(posts):
@@ -173,12 +182,12 @@ def create_author_name_str(post):
     return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
 
 
-def create_editor_name_str(post):
+def create_editor_name_str(post, site=None):
     """Create a formatted author string based on either name or username of a post's most recent editor."""
     author_name = post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
 
     if post.is_main_post_for_topic():
-        revision_url = POST_LATEST_EDIT_JSON_URL.replace('#id', str(post.get_id()))
+        revision_url = create_url(POST_LATEST_EDIT_JSON_URL, post.get_id(), site)
 
         try:
             with request.urlopen(revision_url) as url_data:
@@ -186,7 +195,7 @@ def create_editor_name_str(post):
                 if "username" in json_output:
                     author_name = json_output["username"]
 
-                    user_url = USER_JSON_URL.replace('#id', str(json_output["username"]))
+                    user_url = create_url(USER_JSON_URL, json_output["username"])
                     with request.urlopen(user_url) as user_url_data:
                         user_json_output = json.loads(user_url_data.read().decode())
 

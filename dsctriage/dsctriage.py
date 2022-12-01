@@ -120,14 +120,15 @@ def parse_dates(start=None, end=None):
     return start, end
 
 
-def show_header(category_name, pretty_start_date, pretty_end_date):
+def show_header(category_name, pretty_start_date, pretty_end_date, site=None):
     """Show a dynamic header explaining results."""
     date_range_info = ('on ' + str(pretty_start_date)) \
         if pretty_start_date == pretty_end_date \
         else ('between ' + str(pretty_start_date) + ' and ' + str(pretty_end_date) + ' inclusive')
 
     logging.info('Discourse Comment Triage Helper')
-    logging.info('Showing comments belonging to the %s category, updated %s', str(category_name), date_range_info)
+    logging.info('Showing comments belonging to the %s category%s, updated %s', str(category_name),
+                 f" on {site}" if site is not None else "", date_range_info)
 
 
 def create_hyperlink(url, text):
@@ -172,10 +173,10 @@ def print_single_comment(post, status, date_updated, post_url, shorten_links):
 
 
 # pylint: disable=too-many-arguments
-def print_topic_post(topic, status, date_updated, author, editor, shorten_links, topic_name_length=25):
+def print_topic_post(topic, status, date_updated, author, editor, shorten_links, site=None, topic_name_length=25):
     """Display a topic's name and recent update information if relevant."""
     topic_string = topic.get_name()
-    topic_url = dscfinder.get_topic_url(topic)
+    topic_url = dscfinder.get_topic_url(topic, site)
 
     status_str = ''
     if status == PostStatus.UPDATED:
@@ -238,7 +239,7 @@ def print_comment_chain(post_with_meta, shorten_links, chain_list):
             chain_list.pop()
 
 
-def print_comments_within_topic(topic, post_metadata_list, shorten_links):
+def print_comments_within_topic(topic, post_metadata_list, shorten_links, site=None):
     """Display a topic and its relevant comments, if any."""
     # start by finding the main topic post and removing unnecessary branches by iterating over a copy of the list
     main_topic_post = None
@@ -254,13 +255,13 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links):
         main_post_editor = None
 
         if main_topic_post.status == PostStatus.UPDATED:
-            main_post_editor = dscfinder.create_editor_name_str(main_topic_post.post)
+            main_post_editor = dscfinder.create_editor_name_str(main_topic_post.post, site)
 
         print_topic_post(topic, main_topic_post.status, main_topic_post.update_date, main_post_author, main_post_editor,
-                         shorten_links)
+                         shorten_links, site)
         post_metadata_list.remove(main_topic_post)
     else:
-        print_topic_post(topic, PostStatus.UNCHANGED, None, None, None, shorten_links)
+        print_topic_post(topic, PostStatus.UNCHANGED, None, None, None, shorten_links, site)
 
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
@@ -294,20 +295,27 @@ def get_post_with_metadata_from_post_id(post_id, post_metadata_list):
     return None
 
 
-def print_comments(category, start, end, open_in_browser=False, shorten_links=True):
+def get_metadata_for_posts_of_topic(topic, start, end, site=None):
+    """Return list of posts in topic + additional metadata about their relevance and if there were relevant posts."""
+    post_metadata_list = []
+    topic_is_relevant = False
+
+    for i, post in enumerate(topic.get_posts()):
+        new_meta_post = create_post_with_metadata(post, start, end, dscfinder.get_post_url(topic, i, site))
+        post_metadata_list.append(new_meta_post)
+
+        if new_meta_post.status != PostStatus.UNCHANGED:
+            topic_is_relevant = True
+
+    return post_metadata_list, topic_is_relevant
+
+
+def print_comments(category, start, end, open_in_browser=False, shorten_links=True, site=None):
     """Display relevant posts in a readable format."""
     initial_browser_open = True
 
     for topic in category.get_topics():
-        print_topic = False
-        post_metadata_list = []
-        # Get relevant posts for a topic and add metadata
-        for i, post in enumerate(topic.get_posts()):
-            new_meta_post = create_post_with_metadata(post, start, end, dscfinder.get_post_url(topic, i))
-            post_metadata_list.append(new_meta_post)
-
-            if new_meta_post.status != PostStatus.UNCHANGED:
-                print_topic = True
+        post_metadata_list, print_topic = get_metadata_for_posts_of_topic(topic, start, end, site)
 
         # organize reply structure, remove replies from list, and open in browser if requested
         final_meta_post_list = []
@@ -338,24 +346,36 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
 
         # print topic if it contains any updates
         if print_topic:
-            print_comments_within_topic(topic, final_meta_post_list, shorten_links)
+            print_comments_within_topic(topic, final_meta_post_list, shorten_links, site)
 
 
-def print_post_in_backlog_format(post_id):
+def print_post_in_backlog_format(post_id, site=None):
     """Print a Discourse comment to be copied to the backlog."""
-    backlog_post = dscfinder.get_post_by_id(post_id)
+    backlog_post = dscfinder.get_post_by_id(post_id, site)
 
     if not backlog_post:
         print(f"No post found with id {post_id}")
     else:
         print_single_comment(backlog_post, PostStatus.UNCHANGED, backlog_post.get_update_time(),
-                             dscfinder.get_post_url_without_topic(backlog_post), False)
+                             dscfinder.get_post_url_without_topic(backlog_post, site), False)
+
+
+def fill_topics(topics, progress_bar, site=None):
+    """Download posts related to a list of topics and display progress if desired and available."""
+    if progress_bar and alive_bar is not None:
+        with alive_bar(len(topics)) as bar_view:
+            for topic in topics:
+                dscfinder.add_posts_to_topic(topic, site)
+                bar_view()
+    else:
+        for topic in topics:
+            dscfinder.add_posts_to_topic(topic, site)
 
 
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
-         log_stream=sys.stdout):
+         site=None, log_stream=sys.stdout):
     """Download contents of a given category, find relevant posts, print them to console."""
-    category = dscfinder.get_category_by_name(category_name)
+    category = dscfinder.get_category_by_name(category_name, site)
 
     if category is None:
         print("Unable to find category: " + str(category_name))
@@ -371,21 +391,12 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
     pretty_end = end.strftime('%Y-%m-%d (%A)')
     end += timedelta(days=1)
 
-    show_header(category_name, pretty_start, pretty_end)
+    show_header(category_name, pretty_start, pretty_end, site)
 
-    dscfinder.add_topics_to_category(category, start)
+    dscfinder.add_topics_to_category(category, start, site)
+    fill_topics(category.get_topics(), progress_bar, site)
 
-    topics = category.get_topics()
-    if progress_bar and alive_bar is not None:
-        with alive_bar(len(topics)) as bar_view:
-            for topic in topics:
-                dscfinder.add_posts_to_topic(topic)
-                bar_view()
-    else:
-        for topic in topics:
-            dscfinder.add_posts_to_topic(topic)
-
-    print_comments(category, start, end, open_browser, shorten_links)
+    print_comments(category, start, end, open_browser, shorten_links, site)
 
 
 def launch():
@@ -406,6 +417,8 @@ def launch():
                         help='open comments in web browser')
     parser.add_argument('--fullurls', default=False, action='store_true',
                         help='show full URLs instead of shortcuts')
+    parser.add_argument('-s', '--site', dest='site_url', default=None,
+                        help='The discourse website or server to find comments from')
     parser.add_argument('-c', '--category', dest='category_name', default='Server',
                         help='The discourse category to find comments from')
     parser.add_argument('-b', '--backlog', dest='backlog_post_id',
@@ -416,6 +429,6 @@ def launch():
                   'end': args.end_date}
 
     if args.backlog_post_id:
-        print_post_in_backlog_format(args.backlog_post_id)
+        print_post_in_backlog_format(args.backlog_post_id, args.site_url)
     else:
-        main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls)
+        main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls, args.site_url)
