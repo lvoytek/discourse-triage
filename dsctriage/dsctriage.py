@@ -352,6 +352,18 @@ def print_post_in_backlog_format(post_id, site=None):
                              dscfinder.get_post_url_without_topic(backlog_post, site), False)
 
 
+def fill_topics(topics, progress_bar, site=None):
+    """Download posts related to a list of topics and display progress if desired and available."""
+    if progress_bar and alive_bar is not None:
+        with alive_bar(len(topics)) as bar_view:
+            for topic in topics:
+                dscfinder.add_posts_to_topic(topic, site)
+                bar_view()
+    else:
+        for topic in topics:
+            dscfinder.add_posts_to_topic(topic, site)
+
+
 def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
          site=None, log_stream=sys.stdout):
     """Download contents of a given category, find relevant posts, print them to console."""
@@ -374,16 +386,7 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
     show_header(category_name, pretty_start, pretty_end)
 
     dscfinder.add_topics_to_category(category, start, site)
-
-    topics = category.get_topics()
-    if progress_bar and alive_bar is not None:
-        with alive_bar(len(topics)) as bar_view:
-            for topic in topics:
-                dscfinder.add_posts_to_topic(topic, site)
-                bar_view()
-    else:
-        for topic in topics:
-            dscfinder.add_posts_to_topic(topic, site)
+    fill_topics(category.get_topics(), progress_bar, site)
 
     print_comments(category, start, end, open_browser, shorten_links, site)
 
