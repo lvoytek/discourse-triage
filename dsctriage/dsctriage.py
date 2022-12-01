@@ -120,14 +120,15 @@ def parse_dates(start=None, end=None):
     return start, end
 
 
-def show_header(category_name, pretty_start_date, pretty_end_date):
+def show_header(category_name, pretty_start_date, pretty_end_date, site=None):
     """Show a dynamic header explaining results."""
     date_range_info = ('on ' + str(pretty_start_date)) \
         if pretty_start_date == pretty_end_date \
         else ('between ' + str(pretty_start_date) + ' and ' + str(pretty_end_date) + ' inclusive')
 
     logging.info('Discourse Comment Triage Helper')
-    logging.info('Showing comments belonging to the %s category, updated %s', str(category_name), date_range_info)
+    logging.info('Showing comments belonging to the %s category%s, updated %s', str(category_name),
+                 f" on {site}" if site is not None else "", date_range_info)
 
 
 def create_hyperlink(url, text):
@@ -390,7 +391,7 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
     pretty_end = end.strftime('%Y-%m-%d (%A)')
     end += timedelta(days=1)
 
-    show_header(category_name, pretty_start, pretty_end)
+    show_header(category_name, pretty_start, pretty_end, site)
 
     dscfinder.add_topics_to_category(category, start, site)
     fill_topics(category.get_topics(), progress_bar, site)
@@ -416,6 +417,8 @@ def launch():
                         help='open comments in web browser')
     parser.add_argument('--fullurls', default=False, action='store_true',
                         help='show full URLs instead of shortcuts')
+    parser.add_argument('-s', '--site', dest='site_url', default=None,
+                        help='The discourse website or server to find comments from')
     parser.add_argument('-c', '--category', dest='category_name', default='Server',
                         help='The discourse category to find comments from')
     parser.add_argument('-b', '--backlog', dest='backlog_post_id',
@@ -426,6 +429,6 @@ def launch():
                   'end': args.end_date}
 
     if args.backlog_post_id:
-        print_post_in_backlog_format(args.backlog_post_id)
+        print_post_in_backlog_format(args.backlog_post_id, args.site_url)
     else:
-        main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls)
+        main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls, args.site_url)
