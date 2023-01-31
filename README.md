@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml/badge.svg)](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml)
 [![dsctriage](https://snapcraft.io/dsctriage/badge.svg)](https://snapcraft.io/dsctriage)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 
 Output comments from a [Discourse](https://www.discourse.org/) server for triage. This script is used by the Ubuntu
 Server team to keep up with suggested fixes and issues in the [Ubuntu Server Guide](https://ubuntu.com/server/docs), 
