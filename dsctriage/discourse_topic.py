@@ -28,10 +28,10 @@ class DiscourseTopic:
 
         try:
             if "bumped" in topic_json and "bumped_at" in topic_json:
-                self._latest_update_time = datetime.fromisoformat(topic_json["bumped_at"].replace('Z', '+00:00'))
+                self._latest_update_time = datetime.fromisoformat(topic_json["bumped_at"].replace("Z", "+00:00"))
             elif "last_posted_at" in topic_json:
-                self._latest_update_time = datetime.fromisoformat(topic_json["last_posted_at"].replace('Z', '+00:00'))
-        except (OSError,  ValueError):
+                self._latest_update_time = datetime.fromisoformat(topic_json["last_posted_at"].replace("Z", "+00:00"))
+        except (OSError, ValueError):
             pass
 
         self._posts = []

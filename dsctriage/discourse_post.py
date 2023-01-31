@@ -34,14 +34,14 @@ class DiscoursePost:
 
         try:
             if "created_at" in post_json:
-                self._created_at = datetime.fromisoformat(post_json["created_at"].replace('Z', '+00:00'))
+                self._created_at = datetime.fromisoformat(post_json["created_at"].replace("Z", "+00:00"))
         except (OSError, ValueError):
             pass
 
         try:
             if "updated_at" in post_json:
-                self._updated_at = datetime.fromisoformat(post_json["updated_at"].replace('Z', '+00:00'))
-        except (OSError,  ValueError):
+                self._updated_at = datetime.fromisoformat(post_json["updated_at"].replace("Z", "+00:00"))
+        except (OSError, ValueError):
             pass
 
         if "post_number" in post_json:
