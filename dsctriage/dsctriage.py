@@ -39,9 +39,9 @@ class PostWithMetadata:
 
     def __str__(self):
         """Display post id and metadata."""
-        meta_tags = ''
+        meta_tags = ""
         if self.contains_relevant_posts:
-            meta_tags += 'r'
+            meta_tags += "r"
         return f'{str(self.post)}: {("unchanged", "new", "updated")[self.status.value]} - {meta_tags}'
 
     def add_reply(self, meta_post):
@@ -71,8 +71,10 @@ def auto_date_range(keyword, today=None):
     for _ in range(7):
         triage_day -= timedelta(days=1)
 
-        if keyword.lower() in (datetime.strftime(triage_day, "%A").lower(),
-                               datetime.strftime(triage_day, "%a").lower()):
+        if keyword.lower() in (
+            datetime.strftime(triage_day, "%A").lower(),
+            datetime.strftime(triage_day, "%a").lower(),
+        ):
             triage_found = True
             break
 
@@ -101,20 +103,20 @@ def parse_dates(start=None, end=None):
 
     if start is None:
         if yesterday.weekday() != 6:
-            start = yesterday.strftime('%Y-%m-%d')
+            start = yesterday.strftime("%Y-%m-%d")
         else:
-            start = (yesterday - timedelta(days=2)).strftime('%Y-%m-%d')
-    elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', start):
+            start = (yesterday - timedelta(days=2)).strftime("%Y-%m-%d")
+    elif not re.fullmatch(r"\d{4}-\d{2}-\d{2}", start):
         try:
             start_date, end_date = auto_date_range(start)
-            start = start_date.strftime('%Y-%m-%d')
-            end = end_date.strftime('%Y-%m-%d')
+            start = start_date.strftime("%Y-%m-%d")
+            end = end_date.strftime("%Y-%m-%d")
         except ValueError as error:
             raise ValueError(f"Cannot parse date: {start}") from error
 
     if end is None:
         end = start
-    elif not re.fullmatch(r'\d{4}-\d{2}-\d{2}', end):
+    elif not re.fullmatch(r"\d{4}-\d{2}-\d{2}", end):
         raise ValueError(f"Cannot parse end date: {str(end)}")
 
     return start, end
@@ -122,13 +124,19 @@ def parse_dates(start=None, end=None):
 
 def show_header(category_name, pretty_start_date, pretty_end_date, site=None):
     """Show a dynamic header explaining results."""
-    date_range_info = ('on ' + str(pretty_start_date)) \
-        if pretty_start_date == pretty_end_date \
-        else ('between ' + str(pretty_start_date) + ' and ' + str(pretty_end_date) + ' inclusive')
+    date_range_info = (
+        ("on " + str(pretty_start_date))
+        if pretty_start_date == pretty_end_date
+        else ("between " + str(pretty_start_date) + " and " + str(pretty_end_date) + " inclusive")
+    )
 
-    logging.info('Discourse Comment Triage Helper')
-    logging.info('Showing comments belonging to the %s category%s, updated %s', str(category_name),
-                 f" on {site}" if site is not None else "", date_range_info)
+    logging.info("Discourse Comment Triage Helper")
+    logging.info(
+        "Showing comments belonging to the %s category%s, updated %s",
+        str(category_name),
+        f" on {site}" if site is not None else "",
+        date_range_info,
+    )
 
 
 def create_hyperlink(url, text):
@@ -151,55 +159,64 @@ def set_relevant_post_metadata(post_with_meta):
 
 def print_single_comment(post, status, date_updated, post_url, shorten_links):
     """Display info on a single post in readable format."""
-    status_str = ''
+    status_str = ""
     if status == PostStatus.UPDATED:
-        status_str = '*'
+        status_str = "*"
     elif status == PostStatus.NEW:
-        status_str = '+'
+        status_str = "+"
 
     base_id_str = str(post.get_id())
-    url_str = ''
+    url_str = ""
 
     if shorten_links:
         base_id_str = create_hyperlink(post_url, base_id_str)
     else:
-        url_str = f'({post_url})'
+        url_str = f"({post_url})"
 
-    date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
+    date_str = "" if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
 
-    post_str = f'{status_str}{base_id_str} [{dscfinder.create_author_name_str(post)}{date_str}] {url_str}'
+    post_str = f"{status_str}{base_id_str} [{dscfinder.create_author_name_str(post)}{date_str}] {url_str}"
 
     print(post_str)
 
 
 # pylint: disable=too-many-arguments
-def print_topic_post(topic, status, date_updated, author, editor, shorten_links, site=None, topic_name_length=25):
+def print_topic_post(
+    topic,
+    status,
+    date_updated,
+    author,
+    editor,
+    shorten_links,
+    site=None,
+    topic_name_length=25,
+):
     """Display a topic's name and recent update information if relevant."""
     topic_string = topic.get_name()
     topic_url = dscfinder.get_topic_url(topic, site)
 
-    status_str = ''
+    status_str = ""
     if status == PostStatus.UPDATED:
-        status_str = '*'
+        status_str = "*"
     elif status == PostStatus.NEW:
-        status_str = '+'
+        status_str = "+"
     else:
         topic_name_length += 1
 
     if len(topic_string) > topic_name_length:
-        topic_string = topic_string[0:topic_name_length - 1] + '…'
+        topic_string = topic_string[0 : topic_name_length - 1] + "…"
 
         if shorten_links:
             topic_string = create_hyperlink(topic_url, topic_string)
     else:
         if shorten_links:
             topic_string = create_hyperlink(topic_url, topic_string)
-        topic_string += ' ' * (topic_name_length - len(topic_string))
+        topic_string += " " * (topic_name_length - len(topic_string))
 
-    date_str = '' if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
-    url_str = '' if shorten_links else f'({topic_url})'
+    date_str = "" if date_updated is None else f', {date_updated.strftime("%Y-%m-%d")}'
+    url_str = "" if shorten_links else f"({topic_url})"
 
-    post_str = f'{status_str}{topic_string} [{author if editor is None else editor}{date_str}] {url_str}'
+    post_str = f"{status_str}{topic_string} [{author if editor is None else editor}{date_str}] {url_str}"
 
     print(post_str)
 
@@ -210,10 +227,15 @@ def print_comment_chain(post_with_meta, shorten_links, chain_list):
         if len(chain_list) > 0:
             indent_str = chain_list[0]
             for indent in chain_list[1:]:
-                indent_str += '  ' + indent
-            print(indent_str, end='─ ')
-        print_single_comment(post_with_meta.post, post_with_meta.status, post_with_meta.update_date, post_with_meta.url,
-                             shorten_links)
+                indent_str += "  " + indent
+            print(indent_str, end="─ ")
+        print_single_comment(
+            post_with_meta.post,
+            post_with_meta.status,
+            post_with_meta.update_date,
+            post_with_meta.url,
+            shorten_links,
+        )
 
         # find all relevant replies and add to list
         relevant_replies = []
@@ -222,18 +244,18 @@ def print_comment_chain(post_with_meta, shorten_links, chain_list):
                 relevant_replies.append(reply)
 
         if len(relevant_replies) > 0:
-            if chain_list[-1] == '├':
-                chain_list[-1] = '│'
-            elif chain_list[-1] == '└':
-                chain_list[-1] = ' '
+            if chain_list[-1] == "├":
+                chain_list[-1] = "│"
+            elif chain_list[-1] == "└":
+                chain_list[-1] = " "
 
-            chain_list.append('├')
+            chain_list.append("├")
 
             # iterate through relevant replies
             for reply in relevant_replies[:-1]:
                 print_comment_chain(reply, shorten_links, chain_list)
 
-            chain_list[-1] = '└'
+            chain_list[-1] = "└"
             print_comment_chain(relevant_replies[-1], shorten_links, chain_list)
 
             chain_list.pop()
@@ -257,18 +279,25 @@ def print_comments_within_topic(topic, post_metadata_list, shorten_links, site=N
         if main_topic_post.status == PostStatus.UPDATED:
             main_post_editor = dscfinder.create_editor_name_str(main_topic_post.post, site)
 
-        print_topic_post(topic, main_topic_post.status, main_topic_post.update_date, main_post_author, main_post_editor,
-                         shorten_links, site)
+        print_topic_post(
+            topic,
+            main_topic_post.status,
+            main_topic_post.update_date,
+            main_post_author,
+            main_post_editor,
+            shorten_links,
+            site,
+        )
         post_metadata_list.remove(main_topic_post)
     else:
         print_topic_post(topic, PostStatus.UNCHANGED, None, None, None, shorten_links, site)
 
     # print all additional comments that have either been updated or contain updated replies
     for post_with_meta in post_metadata_list[:-1]:
-        print_comment_chain(post_with_meta, shorten_links, ['├'])
+        print_comment_chain(post_with_meta, shorten_links, ["├"])
 
     if len(post_metadata_list) > 0:
-        print_comment_chain(post_metadata_list[-1], shorten_links, ['└'])
+        print_comment_chain(post_metadata_list[-1], shorten_links, ["└"])
 
 
 def create_post_with_metadata(post, start, end, url):
@@ -320,8 +349,9 @@ def print_comments(category, start, end, open_in_browser=False, shorten_links=Tr
         # organize reply structure, remove replies from list, and open in browser if requested
         final_meta_post_list = []
         for post_item in post_metadata_list:
-            replied_to_post = get_post_with_metadata_from_post_id(post_item.post.get_reply_to_number(),
-                                                                  post_metadata_list)
+            replied_to_post = get_post_with_metadata_from_post_id(
+                post_item.post.get_reply_to_number(), post_metadata_list
+            )
 
             # post is not a reply or is a reply to the main topic, add to top level to recurse through
             if replied_to_post is None or replied_to_post.post.is_main_post_for_topic():
@@ -356,8 +386,13 @@ def print_post_in_backlog_format(post_id, site=None):
     if not backlog_post:
         print(f"No post found with id {post_id}")
     else:
-        print_single_comment(backlog_post, PostStatus.UNCHANGED, backlog_post.get_update_time(),
-                             dscfinder.get_post_url_without_topic(backlog_post, site), False)
+        print_single_comment(
+            backlog_post,
+            PostStatus.UNCHANGED,
+            backlog_post.get_update_time(),
+            dscfinder.get_post_url_without_topic(backlog_post, site),
+            False,
+        )
 
 
 def fill_topics(topics, progress_bar, site=None):
@@ -372,8 +407,16 @@ def fill_topics(topics, progress_bar, site=None):
             dscfinder.add_posts_to_topic(topic, site)
 
 
-def main(category_name, date_range=None, debug=False, progress_bar=False, open_browser=False, shorten_links=True,
-         site=None, log_stream=sys.stdout):
+def main(
+    category_name,
+    date_range=None,
+    debug=False,
+    progress_bar=False,
+    open_browser=False,
+    shorten_links=True,
+    site=None,
+    log_stream=sys.stdout,
+):
     """Download contents of a given category, find relevant posts, print them to console."""
     category = dscfinder.get_category_by_name(category_name, site)
 
@@ -381,14 +424,17 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
         print("Unable to find category: " + str(category_name))
         return
 
-    logging.basicConfig(stream=log_stream, format='%(message)s',
-                        level=logging.DEBUG if debug else logging.INFO)
+    logging.basicConfig(
+        stream=log_stream,
+        format="%(message)s",
+        level=logging.DEBUG if debug else logging.INFO,
+    )
 
-    date_range['start'], date_range['end'] = parse_dates(date_range['start'], date_range['end'])
-    start = datetime.strptime(date_range['start'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
-    end = datetime.strptime(date_range['end'], '%Y-%m-%d').replace(tzinfo=timezone.utc)
-    pretty_start = start.strftime('%Y-%m-%d (%A)')
-    pretty_end = end.strftime('%Y-%m-%d (%A)')
+    date_range["start"], date_range["end"] = parse_dates(date_range["start"], date_range["end"])
+    start = datetime.strptime(date_range["start"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    end = datetime.strptime(date_range["end"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    pretty_start = start.strftime("%Y-%m-%d (%A)")
+    pretty_end = end.strftime("%Y-%m-%d (%A)")
     end += timedelta(days=1)
 
     show_header(category_name, pretty_start, pretty_end, site)
@@ -402,33 +448,64 @@ def main(category_name, date_range=None, debug=False, progress_bar=False, open_b
 def launch():
     """Launch discourse-triage via the command line with given arguments."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('start_date',
-                        nargs='?',
-                        help='date or day name to start finding comments ' +
-                             '(e.g. 2022-04-13, monday, Thu)')
-    parser.add_argument('end_date',
-                        nargs='?',
-                        help='date to end finding comments (inclusive) ' +
-                             '(e.g. 2022-04-27)')
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='debug output')
-    parser.add_argument('-o', '--open', action='store_const',
-                        const=1, default=0,
-                        help='open comments in web browser')
-    parser.add_argument('--fullurls', default=False, action='store_true',
-                        help='show full URLs instead of shortcuts')
-    parser.add_argument('-s', '--site', dest='site_url', default=None,
-                        help='The discourse website or server to find comments from')
-    parser.add_argument('-c', '--category', dest='category_name', default='Server',
-                        help='The discourse category to find comments from')
-    parser.add_argument('-b', '--backlog', dest='backlog_post_id',
-                        help='Display a post of a given ID in a standard backlog format')
+    parser.add_argument(
+        "start_date",
+        nargs="?",
+        help="date or day name to start finding comments " + "(e.g. 2022-04-13, monday, Thu)",
+    )
+    parser.add_argument(
+        "end_date",
+        nargs="?",
+        help="date to end finding comments (inclusive) " + "(e.g. 2022-04-27)",
+    )
+    parser.add_argument("-d", "--debug", action="store_true", help="debug output")
+    parser.add_argument(
+        "-o",
+        "--open",
+        action="store_const",
+        const=1,
+        default=0,
+        help="open comments in web browser",
+    )
+    parser.add_argument(
+        "--fullurls",
+        default=False,
+        action="store_true",
+        help="show full URLs instead of shortcuts",
+    )
+    parser.add_argument(
+        "-s",
+        "--site",
+        dest="site_url",
+        default=None,
+        help="The discourse website or server to find comments from",
+    )
+    parser.add_argument(
+        "-c",
+        "--category",
+        dest="category_name",
+        default="Server",
+        help="The discourse category to find comments from",
+    )
+    parser.add_argument(
+        "-b",
+        "--backlog",
+        dest="backlog_post_id",
+        help="Display a post of a given ID in a standard backlog format",
+    )
     args = parser.parse_args()
 
-    date_range = {'start': args.start_date,
-                  'end': args.end_date}
+    date_range = {"start": args.start_date, "end": args.end_date}
 
     if args.backlog_post_id:
         print_post_in_backlog_format(args.backlog_post_id, args.site_url)
     else:
-        main(args.category_name, date_range, args.debug, True, args.open, not args.fullurls, args.site_url)
+        main(
+            args.category_name,
+            date_range,
+            args.debug,
+            True,
+            args.open,
+            not args.fullurls,
+            args.site_url,
+        )

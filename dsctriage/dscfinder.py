@@ -6,37 +6,21 @@ from .discourse_post import DiscoursePost
 from .discourse_topic import DiscourseTopic
 from .discourse_category import DiscourseCategory
 
-DEFAULT_DISCOURSE_URL = (
-    'https://discourse.ubuntu.com'
-)
+DEFAULT_DISCOURSE_URL = "https://discourse.ubuntu.com"
 
-POST_JSON_URL = (
-        '#url/posts/#id.json'
-)
+POST_JSON_URL = "#url/posts/#id.json"
 
-POST_LATEST_EDIT_JSON_URL = (
-        '#url/posts/#id/revisions/latest.json'
-)
+POST_LATEST_EDIT_JSON_URL = "#url/posts/#id/revisions/latest.json"
 
-CATEGORY_JSON_URL = (
-        '#url/c/#id/show.json'
-)
+CATEGORY_JSON_URL = "#url/c/#id/show.json"
 
-CATEGORY_TOPIC_LIST_JSON_URL = (
-        '#url/c/#id.json'
-)
+CATEGORY_TOPIC_LIST_JSON_URL = "#url/c/#id.json"
 
-CATEGORY_LIST_JSON_URL = (
-        '#url/categories.json'
-)
+CATEGORY_LIST_JSON_URL = "#url/categories.json"
 
-TOPIC_POST_LIST_JSON_URL = (
-        '#url/t/#id.json'
-)
+TOPIC_POST_LIST_JSON_URL = "#url/t/#id.json"
 
-USER_JSON_URL = (
-        '#url/u/#id.json'
-)
+USER_JSON_URL = "#url/u/#id.json"
 
 
 def create_url(template, id_var, site=None):
@@ -45,7 +29,7 @@ def create_url(template, id_var, site=None):
 
     If the site is None then use the default.
     """
-    return template.replace('#url', str(DEFAULT_DISCOURSE_URL if site is None else site)).replace('#id', str(id_var))
+    return template.replace("#url", str(DEFAULT_DISCOURSE_URL if site is None else site)).replace("#id", str(id_var))
 
 
 def get_post_by_id(post_id, site=None):
@@ -179,12 +163,12 @@ def get_post_url(topic, post_index, site=None):
 
 def create_author_name_str(post):
     """Create a formatted author string based on a post's original author."""
-    return post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
+    return post.get_author_username() if post.get_author_name() in (None, "") else post.get_author_name()
 
 
 def create_editor_name_str(post, site=None):
     """Create a formatted author string based on either name or username of a post's most recent editor."""
-    author_name = post.get_author_username() if post.get_author_name() in (None, '') else post.get_author_name()
+    author_name = post.get_author_username() if post.get_author_name() in (None, "") else post.get_author_name()
 
     if post.is_main_post_for_topic():
         revision_url = create_url(POST_LATEST_EDIT_JSON_URL, post.get_id(), site)
