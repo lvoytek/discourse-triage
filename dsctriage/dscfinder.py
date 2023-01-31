@@ -43,7 +43,7 @@ def get_post_by_id(post_id, site=None):
     try:
         with request.urlopen(post_url) as url_data:
             json_output = json.loads(url_data.read().decode())
-            return DiscoursePost(json_output)
+        return DiscoursePost(json_output)
     except HTTPError:
         return None
 
@@ -60,8 +60,8 @@ def get_category_by_id(category_id, site=None):
         with request.urlopen(category_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-            if "category" in json_output:
-                return DiscourseCategory(json_output["category"])
+        if "category" in json_output:
+            return DiscourseCategory(json_output["category"])
     except HTTPError:
         pass
 
@@ -77,10 +77,10 @@ def get_category_by_name(category_name, site=None):
     try:
         with request.urlopen(create_url(CATEGORY_LIST_JSON_URL, "", site)) as url_data:
             json_output = json.loads(url_data.read().decode())
-            if "category_list" in json_output and "categories" in json_output["category_list"]:
-                for category in json_output["category_list"]["categories"]:
-                    if category["name"].lower() == category_name.lower():
-                        return DiscourseCategory(category)
+        if "category_list" in json_output and "categories" in json_output["category_list"]:
+            for category in json_output["category_list"]["categories"]:
+                if category["name"].lower() == category_name.lower():
+                    return DiscourseCategory(category)
     except HTTPError:
         pass
 
@@ -94,27 +94,27 @@ def add_posts_to_topic(topic, site=None):
     try:
         with request.urlopen(topic_url) as url_data:
             json_output = json.loads(url_data.read().decode())
-            # get initial set of posts from the post_stream > posts section of the JSON
-            if "post_stream" in json_output and "posts" in json_output["post_stream"]:
-                for post in json_output["post_stream"]["posts"]:
-                    new_post = DiscoursePost(post)
+        # get initial set of posts from the post_stream > posts section of the JSON
+        if "post_stream" in json_output and "posts" in json_output["post_stream"]:
+            for post in json_output["post_stream"]["posts"]:
+                new_post = DiscoursePost(post)
 
-                    if new_post is not None:
+                if new_post is not None:
+                    topic.add_post(new_post)
+
+        # not all posts always show up in the posts section, so download remainder from the stream section
+        if "post_stream" in json_output and "stream" in json_output["post_stream"]:
+            for post_id in json_output["post_stream"]["stream"]:
+                post_exists = False
+                for post in topic.get_posts():
+                    if str(post_id) == str(post.get_id()):
+                        post_exists = True
+                        break
+
+                if not post_exists:
+                    new_post = get_post_by_id(post_id, site)
+                    if new_post:
                         topic.add_post(new_post)
-
-            # not all posts always show up in the posts section, so download remainder from the stream section
-            if "post_stream" in json_output and "stream" in json_output["post_stream"]:
-                for post_id in json_output["post_stream"]["stream"]:
-                    post_exists = False
-                    for post in topic.get_posts():
-                        if str(post_id) == str(post.get_id()):
-                            post_exists = True
-                            break
-
-                    if not post_exists:
-                        new_post = get_post_by_id(post_id, site)
-                        if new_post:
-                            topic.add_post(new_post)
     except HTTPError:
         pass
 
@@ -126,15 +126,15 @@ def add_topics_to_category(category, ignore_before_date=None, site=None):
     try:
         with request.urlopen(category_url) as url_data:
             json_output = json.loads(url_data.read().decode())
-            if "topic_list" in json_output and "topics" in json_output["topic_list"]:
-                for topic in json_output["topic_list"]["topics"]:
-                    new_topic = DiscourseTopic(topic)
+        if "topic_list" in json_output and "topics" in json_output["topic_list"]:
+            for topic in json_output["topic_list"]["topics"]:
+                new_topic = DiscourseTopic(topic)
 
-                    update_time = None if new_topic is None else new_topic.get_latest_update_time()
-                    accept_date = ignore_before_date is None or update_time is None or update_time >= ignore_before_date
+                update_time = None if new_topic is None else new_topic.get_latest_update_time()
+                accept_date = ignore_before_date is None or update_time is None or update_time >= ignore_before_date
 
-                    if new_topic is not None and accept_date:
-                        category.add_topic(new_topic)
+                if new_topic is not None and accept_date:
+                    category.add_topic(new_topic)
 
     except HTTPError:
         pass
@@ -176,15 +176,15 @@ def create_editor_name_str(post, site=None):
         try:
             with request.urlopen(revision_url) as url_data:
                 json_output = json.loads(url_data.read().decode())
-                if "username" in json_output:
-                    author_name = json_output["username"]
+            if "username" in json_output:
+                author_name = json_output["username"]
 
-                    user_url = create_url(USER_JSON_URL, json_output["username"])
+                user_url = create_url(USER_JSON_URL, json_output["username"])
             with request.urlopen(user_url) as user_url_data:
                 user_json_output = json.loads(user_url_data.read().decode())
 
-                if "user" in user_json_output and "name" in user_json_output["user"]:
-                    author_name = user_json_output["user"]["name"]
+            if "user" in user_json_output and "name" in user_json_output["user"]:
+                author_name = user_json_output["user"]["name"]
 
         except HTTPError:
             pass
