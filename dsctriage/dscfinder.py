@@ -180,11 +180,11 @@ def create_editor_name_str(post, site=None):
                     author_name = json_output["username"]
 
                     user_url = create_url(USER_JSON_URL, json_output["username"])
-                    with request.urlopen(user_url) as user_url_data:
-                        user_json_output = json.loads(user_url_data.read().decode())
+            with request.urlopen(user_url) as user_url_data:
+                user_json_output = json.loads(user_url_data.read().decode())
 
-                        if "user" in user_json_output and "name" in user_json_output["user"]:
-                            author_name = user_json_output["user"]["name"]
+                if "user" in user_json_output and "name" in user_json_output["user"]:
+                    author_name = user_json_output["user"]["name"]
 
         except HTTPError:
             pass
