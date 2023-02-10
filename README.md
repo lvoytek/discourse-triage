@@ -1,4 +1,4 @@
-# Discourse Triage
+# ![dsctriage](img/dsctriage-small.png) Discourse Triage
 
 [![CI](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml/badge.svg)](https://github.com/lvoytek/discourse-triage/actions/workflows/main.yml)
 [![dsctriage](https://snapcraft.io/dsctriage/badge.svg)](https://snapcraft.io/dsctriage)
