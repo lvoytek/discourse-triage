@@ -20,6 +20,8 @@ CATEGORY_LIST_JSON_URL = "#url/categories.json"
 
 TOPIC_POST_LIST_JSON_URL = "#url/t/#id.json"
 
+TOPIC_POST_BATCH_JSON_URL = "#url/t/#id/posts.json"
+
 USER_JSON_URL = "#url/u/#id.json"
 
 
@@ -30,6 +32,22 @@ def create_url(template, id_var, site=None):
     If the site is None then use the default.
     """
     return template.replace("#url", str(DEFAULT_DISCOURSE_URL if site is None else site)).replace("#id", str(id_var))
+
+
+def extract_posts_from_json_post_stream(json_output):
+    """
+    Extract all available posts from json in a post stream and return them as a list of DiscoursePost objects.
+
+    Returns an empty array if json is invalid or contains no posts
+    """
+    posts = []
+    if "post_stream" in json_output and "posts" in json_output["post_stream"]:
+        for post in json_output["post_stream"]["posts"]:
+            new_post = DiscoursePost(post)
+            if new_post is not None:
+                posts.append(new_post)
+
+    return posts
 
 
 def get_post_by_id(post_id, site=None):
@@ -44,6 +62,33 @@ def get_post_by_id(post_id, site=None):
         with request.urlopen(post_url) as url_data:
             json_output = json.loads(url_data.read().decode())
         return DiscoursePost(json_output)
+    except HTTPError:
+        return None
+
+
+def get_batch_of_posts_by_id(topic_id, post_ids, site=None):
+    """
+    Download post data for a list of given post ids in a topic and return it as a list of DiscoursePost objects.
+
+    Invalid post ids are ignored
+    Returns None if download fails, or an emtpy list if there are no valid ids
+    """
+    if post_ids is None or len(post_ids) == 0:
+        return []
+
+    posts_url = create_url(TOPIC_POST_BATCH_JSON_URL, topic_id, site)
+
+    # append post ids to the url through params with the format post_ids[]=<id>
+    posts_url += f"?post_ids[]={post_ids[0]}"
+    for post_id in post_ids[1::]:
+        posts_url += f"&post_ids[]={post_id}"
+
+    try:
+        with request.urlopen(posts_url) as url_data:
+            json_output = json.loads(url_data.read().decode())
+
+        return extract_posts_from_json_post_stream(json_output)
+
     except HTTPError:
         return None
 
@@ -94,15 +139,13 @@ def add_posts_to_topic(topic, site=None):
     try:
         with request.urlopen(topic_url) as url_data:
             json_output = json.loads(url_data.read().decode())
+
         # get initial set of posts from the post_stream > posts section of the JSON
-        if "post_stream" in json_output and "posts" in json_output["post_stream"]:
-            for post in json_output["post_stream"]["posts"]:
-                new_post = DiscoursePost(post)
+        for new_post in extract_posts_from_json_post_stream(json_output):
+            topic.add_post(new_post)
 
-                if new_post is not None:
-                    topic.add_post(new_post)
-
-        # not all posts always show up in the posts section, so download remainder from the stream section
+        # not all posts always show up in the posts section, so determine which ones are missing
+        posts_to_get = []
         if "post_stream" in json_output and "stream" in json_output["post_stream"]:
             for post_id in json_output["post_stream"]["stream"]:
                 post_exists = False
@@ -110,11 +153,21 @@ def add_posts_to_topic(topic, site=None):
                     if str(post_id) == str(post.get_id()):
                         post_exists = True
                         break
-
                 if not post_exists:
-                    new_post = get_post_by_id(post_id, site)
-                    if new_post:
-                        topic.add_post(new_post)
+                    posts_to_get.append(post_id)
+
+        # download missing posts that show up in the stream section batching requests if the chunk size is known
+        chunk_size = int(json_output["chunk_size"]) if "chunk_size" in json_output else 1
+        for i in range(0, len(posts_to_get), chunk_size):
+            if i + chunk_size > len(posts_to_get):
+                new_posts = get_batch_of_posts_by_id(topic.get_id(), posts_to_get[i::], site)
+            else:
+                new_posts = get_batch_of_posts_by_id(topic.get_id(), posts_to_get[i : i + chunk_size], site)
+
+            if new_posts is not None:
+                for new_post in new_posts:
+                    topic.add_post(new_post)
+
     except HTTPError:
         pass
 
