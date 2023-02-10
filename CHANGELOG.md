@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased
+## 1.4.0
+
+Released on February 10, 2023
 
 ### Added
 
 * Standard formatting using [black](https://github.com/psf/black)
 * Changelog file
-* Logo in images folder and in Readme
+* [Logo](img/dsctriage.png) in images folder and in Readme
 
 ### Changed
 
