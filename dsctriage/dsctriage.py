@@ -106,6 +106,7 @@ def parse_dates(start=None, end=None):
             start = yesterday.strftime("%Y-%m-%d")
         else:
             start = (yesterday - timedelta(days=2)).strftime("%Y-%m-%d")
+            end = yesterday.strftime("%Y-%m-%d")
     elif not re.fullmatch(r"\d{4}-\d{2}-\d{2}", start):
         try:
             start_date, end_date = auto_date_range(start)
