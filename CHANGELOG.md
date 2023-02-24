@@ -5,6 +5,7 @@
 ### Changed
 
 * Clear progress bar when download is complete for cleaner copy-paste of output
+* snapcraft.yaml summary and description to better match readme
 
 ### Fixed
 
