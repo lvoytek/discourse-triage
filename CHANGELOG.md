@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+* Clear progress bar when download is complete for cleaner copy-paste of output
+
+### Fixed
+
+* Default triage range when using on Mondays to include whole weekend
+
 ## 1.4.0
 
 Released on February 10, 2023

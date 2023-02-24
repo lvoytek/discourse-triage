@@ -399,7 +399,7 @@ def print_post_in_backlog_format(post_id, site=None):
 def fill_topics(topics, progress_bar, site=None):
     """Download posts related to a list of topics and display progress if desired and available."""
     if progress_bar and alive_bar is not None:
-        with alive_bar(len(topics)) as bar_view:
+        with alive_bar(len(topics), receipt=False) as bar_view:
             for topic in topics:
                 dscfinder.add_posts_to_topic(topic, site)
                 bar_view()
