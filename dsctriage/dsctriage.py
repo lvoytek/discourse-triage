@@ -10,6 +10,7 @@ import re
 import logging
 import webbrowser
 from . import dscfinder
+from .dscconfig import Config
 
 try:
     from alive_progress import alive_bar
@@ -447,7 +448,9 @@ def main(
 
 
 def launch():
-    """Launch discourse-triage via the command line with given arguments."""
+    """Launch discourse-triage via the command line with given arguments and active configuration."""
+    config = Config()
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "start_date",
@@ -470,7 +473,7 @@ def launch():
     )
     parser.add_argument(
         "--fullurls",
-        default=False,
+        default=not config.shorten_links,
         action="store_true",
         help="show full URLs instead of shortcuts",
     )
@@ -478,14 +481,14 @@ def launch():
         "-s",
         "--site",
         dest="site_url",
-        default=None,
+        default=config.site,
         help="The discourse website or server to find comments from",
     )
     parser.add_argument(
         "-c",
         "--category",
         dest="category_name",
-        default="Server",
+        default=config.category,
         help="The discourse category to find comments from",
     )
     parser.add_argument(
@@ -505,7 +508,7 @@ def launch():
             args.category_name,
             date_range,
             args.debug,
-            True,
+            config.progress_bar,
             args.open,
             not args.fullurls,
             args.site_url,
