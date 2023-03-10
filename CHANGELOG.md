@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.4.1
+
+Released on March 10, 2023
 
 ### Changed
 
