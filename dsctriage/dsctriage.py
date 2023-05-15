@@ -497,7 +497,18 @@ def launch():
         dest="backlog_post_id",
         help="Display a post of a given ID in a standard backlog format",
     )
+    parser.add_argument(
+        "--set-defaults",
+        dest="set_defaults",
+        action="store_true",
+        help="Update the default configuration to use the provided site and category",
+    )
     args = parser.parse_args()
+
+    if args.set_defaults:
+        config.site = args.site_url
+        config.category = args.category_name
+        config.save()
 
     date_range = {"start": args.start_date, "end": args.end_date}
 
