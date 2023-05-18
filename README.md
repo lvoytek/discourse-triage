@@ -102,3 +102,10 @@ with the ID 14159:
 or:
 
     dsctriage --backlog 14159
+
+### Set default category and server
+To update the Discourse server and category used by default, add the `--set-defaults` argument during a dsctriage run
+against them. Future runs will no longer need them to be specified each time. For example, the following will run
+dsctriage and set the default category to `announcements` in the Discourse meta site: 
+
+    dsctriage -s https://meta.discourse.org -c announcements --set-defaults
