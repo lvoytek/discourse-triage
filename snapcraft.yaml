@@ -22,3 +22,7 @@ parts:
     plugin: python
     source: https://github.com/lvoytek/discourse-triage
     source-type: git
+
+layout:
+  /etc/dsctriage.conf:
+    bind-file: $SNAP_DATA/etc/dsctriage.conf
