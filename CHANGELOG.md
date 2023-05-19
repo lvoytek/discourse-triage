@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+* Configuration management through `dsctriage.conf`
+* The `--set-defaults` argument
+
 ## 1.4.1
 
 Released on March 10, 2023
