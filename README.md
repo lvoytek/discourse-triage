@@ -112,7 +112,7 @@ dsctriage and set the default category to `announcements` in the Discourse meta 
 
 ## Configuration
 Alongside the `--set-defaults` argument shown above, Discourse Triage can be configured the `dsctriage.conf` file. This
-can be found in `/snap/dsctriage/etc/` when using the snap, or can be added to `/etc` when running with `python3 -m`.
+can be edited in `~/snap/dsctriage/current/.config/` when using the snap, or `~/.config` when running with `python3 -m`.
 
 ### Usage
 The `dsctriage.conf` file works as a standard config file, where options are set in the `[dsctriage]` section using a
