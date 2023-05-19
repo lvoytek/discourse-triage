@@ -1,5 +1,6 @@
 """dsctriage configuration manager."""
 import configparser
+from pathlib import Path
 
 default_config = {
     "dsctriage": {
@@ -11,21 +12,35 @@ default_config = {
 }
 
 
+def get_default_config_filename():
+    """Get the default file path to get and put dsctriage.conf."""
+    try:
+        return f"{Path.home()}/.config/dsctriage.conf"
+    except RuntimeError:
+        return "/etc/dsctriage.conf"
+
+
 class Config:
     """Class for interacting with a dsctriage config file."""
 
-    def __init__(self, config_filename="/etc/dsctriage.conf"):
+    def __init__(self, config_filename=None):
         """Set configuration to default then update config from aa given file if available."""
         self._config = configparser.ConfigParser()
         self._config.read_dict(default_config)
+
+        if not config_filename:
+            config_filename = get_default_config_filename()
 
         try:
             self._config.read(config_filename)
         except FileNotFoundError:
             pass
 
-    def save(self, config_filename="/etc/dsctriage.conf"):
+    def save(self, config_filename=None):
         """Save configuration to a file."""
+        if not config_filename:
+            config_filename = get_default_config_filename()
+
         with open(config_filename, "w", encoding="utf-8") as config_file:
             self._config.write(config_file)
 
