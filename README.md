@@ -109,3 +109,30 @@ against them. Future runs will no longer need them to be specified each time. Fo
 dsctriage and set the default category to `announcements` in the Discourse meta site: 
 
     dsctriage -s https://meta.discourse.org -c announcements --set-defaults
+
+## Configuration
+Alongside the `--set-defaults` argument shown above, Discourse Triage can be configured the `dsctriage.conf` file. This
+can be found in `/snap/dsctriage/etc/` when using the snap, or can be added to `/etc` when running with `python3 -m`.
+
+### Usage
+The `dsctriage.conf` file works as a standard config file, where options are set in the `[dsctriage]` section using a
+`=`. Here is an example of a valid `dsctriage.conf`:
+
+    [dsctriage]
+    category = doc
+    site = https://forum.snapcraft.io
+    progress_bar = True
+    shorten_links = True
+
+### Options
+The following options can be modified in the config file:
+
+* `category`
+    - The Discourse category to look at, initially defaults to `Server`
+* `site`
+    - The Discourse site URL to look at, initially defaults to `https://discourse.ubuntu.com`
+* `progress_bar`
+    - Whether to show the progress bar when running dsctriage, defaults to `True`
+* `shorten_links`
+    - Whether to show links as hyperlinks in the post number, or print them fully. Defaults to `True`, making them
+    hyperlinks.
