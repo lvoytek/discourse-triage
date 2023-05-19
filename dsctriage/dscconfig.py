@@ -41,6 +41,8 @@ class Config:
         if not config_filename:
             config_filename = get_default_config_filename()
 
+        Path.mkdir(Path(config_filename).parent, parents=True, exist_ok=True)
+
         with open(config_filename, "w", encoding="utf-8") as config_file:
             self._config.write(config_file)
 
