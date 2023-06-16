@@ -16,7 +16,7 @@ CATEGORY_JSON_URL = "#url/c/#id/show.json"
 
 CATEGORY_TOPIC_LIST_JSON_URL = "#url/c/#id.json"
 
-CATEGORY_LIST_JSON_URL = "#url/categories.json"
+CATEGORY_LIST_JSON_URL = "#url/categories.json?include_subcategories=true"
 
 TOPIC_POST_LIST_JSON_URL = "#url/t/#id.json"
 
