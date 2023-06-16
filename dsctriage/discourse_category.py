@@ -25,6 +25,7 @@ class DiscourseCategory:
             self._description = category_json["description_text"]
 
         self._topics = []
+        self._subcategories = []
 
     def __str__(self):
         """Display category as invalid or by its name."""
@@ -49,8 +50,19 @@ class DiscourseCategory:
         if isinstance(topic, DiscourseTopic):
             self._topics.append(topic)
         else:
-            raise TypeError("Object of " + str(type(topic)) + " is not a DiscourseTopic")
+            raise TypeError("Object of type " + str(type(topic)) + " is not a DiscourseTopic")
 
     def get_topics(self):
         """Get all topics contained in the category."""
         return self._topics
+
+    def add_subcategory(self, subcategory):
+        """Add a DiscourseCategory object as a subcategory to the category."""
+        if isinstance(subcategory, DiscourseCategory):
+            self._subcategories.append(subcategory)
+        else:
+            raise TypeError("Object of type " + str(type(subcategory)) + " is not a DiscourseCategory")
+
+    def get_subcategories(self):
+        """Get all the category's subcategories."""
+        return self._subcategories
