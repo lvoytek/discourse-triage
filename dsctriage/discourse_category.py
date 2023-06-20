@@ -70,3 +70,19 @@ class DiscourseCategory:
     def get_subcategories(self):
         """Get all the category's subcategories."""
         return self._subcategories
+
+    def get_subcategory_by_id(self, subcategory_id):
+        """Get a subcategory with the given id or return None if it does not exist."""
+        for subcategory in self._subcategories:
+            if subcategory.get_id() == subcategory_id:
+                return subcategory
+
+        return None
+
+    def get_subcategory_by_name(self, subcategory_name):
+        """Get the first subcategory with the given name or return None if it does not exist."""
+        for subcategory in self._subcategories:
+            if subcategory.get_name() == subcategory_name:
+                return subcategory
+
+        return None
