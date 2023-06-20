@@ -235,7 +235,7 @@ def test_add_topics_to_category():
             None,
         ),
         (
-            "https://discourse.ubuntu.com/categories.json",
+            "https://discourse.ubuntu.com/categories.json?include_subcategories=true",
             dscfinder.CATEGORY_LIST_JSON_URL,
             None,
             None,
