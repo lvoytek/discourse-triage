@@ -52,6 +52,43 @@ EXAMPLE_CATEGORY_STRING = (
 )
 
 
+EXAMPLE_SUBCATEGORY_SET_STRING = (
+    '{"id":6,"name":"General Discussions","color":"92278F","text_color":"FFFFFF","slug":"general-discussions",'
+    '"topic_count":4253,"post_count":11038,"position":1,"description":"Got something to say about Kubernetes?",'
+    '"description_text":"Got something to say about Kubernetes?",'
+    '"topic_url":"/t/about-the-general-discussions-category/18","read_restricted":false,"permission":null,'
+    '"notification_level":1,"has_children":true,"sort_order":"","sort_ascending":null,"show_subcategory_list":false,'
+    '"num_featured_topics":3,"default_view":"latest","subcategory_list_style":"rows_with_featured_topics",'
+    '"default_top_period":"quarterly","default_list_filter":"all","minimum_required_tags":0,'
+    '"navigate_to_first_post_after_read":false,"topics_day":3,"topics_week":14,"topics_month":67,"topics_year":965,'
+    '"topics_all_time":4884,"subcategory_ids":[22,26],"uploaded_logo":null,"uploaded_logo_dark":null,'
+    '"uploaded_background":null,"subcategory_list":[{"id":22,"name":"Windows","color":"0078d4","text_color":"FFFFFF",'
+    '"slug":"windows","topic_count":77,"post_count":197,"position":19,'
+    '"description":"Welcome to the Windows containers in Kubernetes discussion.",'
+    '"description_text":"Welcome to the Windows containers in Kubernetes discussion.",'
+    '"description_excerpt":"Welcome to the Windows containers in Kubernetes discussion.",'
+    '"topic_url":"/t/about-the-windows-category/5633","read_restricted":false,"permission":null,"parent_category_id":6,'
+    '"notification_level":1,"topic_template":"","has_children":false,"sort_order":"","sort_ascending":null,'
+    '"show_subcategory_list":false,"num_featured_topics":3,"default_view":"",'
+    '"subcategory_list_style":"rows_with_featured_topics","default_top_period":"all","default_list_filter":"all",'
+    '"minimum_required_tags":0,"navigate_to_first_post_after_read":false,"topics_day":0,"topics_week":0,'
+    '"topics_month":1,"topics_year":16,"topics_all_time":77,"subcategory_ids":[],"uploaded_logo":null,'
+    '"uploaded_logo_dark":null,"uploaded_background":null},'
+    '{"id":26,"name":"microk8s","color":"E95420","text_color":"FFFFFF","slug":"microk8s","topic_count":554,'
+    '"post_count":1947,"position":23,'
+    '"description":"<strong>MicroK8s</strong> is a low-ops, minimal production Kubernetes.",'
+    '"description_text":"MicroK8s is a low-ops, minimal production Kubernetes.",'
+    '"description_excerpt":"MicroK8s is a low-ops, minimal production Kubernetes.",'
+    '"topic_url":"/t/microk8s-documentation-home/11243","read_restricted":false,"permission":null,'
+    '"parent_category_id":6,"notification_level":1,"topic_template":"",'
+    '"has_children":false,"sort_order":"","sort_ascending":null,"show_subcategory_list":false,"num_featured_topics":3,'
+    '"default_view":"latest","subcategory_list_style":"rows_with_featured_topics","default_top_period":"yearly",'
+    '"default_list_filter":"all","minimum_required_tags":0,"navigate_to_first_post_after_read":false,"topics_day":0,'
+    '"topics_week":4,"topics_month":8,"topics_year":150,"topics_all_time":554,"subcategory_ids":[],'
+    '"uploaded_logo":null,"uploaded_logo_dark":null,"uploaded_background":null}]}'
+)
+
+
 # pylint: disable=too-many-arguments
 @pytest.mark.parametrize(
     "post_id, name, username, data, post_number, created, updated, rep_cnt, rep_to, post_string",
@@ -192,6 +229,39 @@ def test_create_category_from_json(category_id, name, description, category_stri
         assert str(category) == "Invalid Category"
     else:
         assert name in str(category)
+
+
+@pytest.mark.parametrize(
+    "subcategory_id, name, description, category_string",
+    [
+        (
+            22,
+            "Windows",
+            "Welcome to the Windows containers in Kubernetes discussion.",
+            EXAMPLE_SUBCATEGORY_SET_STRING,
+        ),
+        (None, None, None, '{"id":1,"subcategory_list":[{}]}'),
+        (
+            "",
+            "",
+            "",
+            '{"id":1,"name":"Test","description_text":"","subcategory_list":[{"id":"","name":"",'
+            '"description_text":""}]}',
+        ),
+    ],
+)
+def test_create_subcategory_from_json(subcategory_id, name, description, category_string):
+    """Test that DiscourseCategory extracts subcategory json correctly."""
+    category_json = json.loads(category_string)
+    category = DiscourseCategory(category_json)
+    assert category.get_subcategories()[0].get_id() == subcategory_id
+    assert category.get_subcategories()[0].get_name() == name
+    assert category.get_subcategories()[0].get_description() == description
+
+    if name is None or subcategory_id is None:
+        assert str(category.get_subcategories()[0]) == "Invalid Category"
+    else:
+        assert name in str(category.get_subcategories()[0])
 
 
 def test_add_topics_to_category():
