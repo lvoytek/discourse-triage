@@ -24,8 +24,12 @@ class DiscourseCategory:
         if "description_text" in category_json:
             self._description = category_json["description_text"]
 
-        self._topics = []
         self._subcategories = []
+        if "subcategory_list" in category_json:
+            for subcategory in category_json["subcategory_list"]:
+                self.add_subcategory(DiscourseCategory(subcategory))
+
+        self._topics = []
 
     def __str__(self):
         """Display category as invalid or by its name."""
