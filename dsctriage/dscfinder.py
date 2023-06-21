@@ -115,9 +115,9 @@ def get_category_by_id(category_id, site=None):
 
 def get_category_by_name(category_name, site=None):
     """
-    Download category data for a given category or category/subcategory/... name (case-insensitive) and return it as a DiscourseCategory object.
+    Download category data for a given category or category/subcategory/... name (case-insensitive).
 
-    Returns None if download fails or name is invalid.
+    Returns result as a DiscourseCategory object or None if download fails or name is invalid.
     """
     category_nav = category_name.split("/")
     final_category = None
