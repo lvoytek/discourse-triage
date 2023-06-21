@@ -264,6 +264,70 @@ def test_create_subcategory_from_json(subcategory_id, name, description, categor
         assert name in str(category.get_subcategories()[0])
 
 
+@pytest.mark.parametrize(
+    "subcategory_id, name, description, category_string",
+    [
+        (
+            22,
+            "Windows",
+            "Welcome to the Windows containers in Kubernetes discussion.",
+            EXAMPLE_SUBCATEGORY_SET_STRING,
+        ),
+        (
+            26,
+            "microk8s",
+            "MicroK8s is a low-ops, minimal production Kubernetes.",
+            EXAMPLE_SUBCATEGORY_SET_STRING,
+        ),
+        (28, None, None, EXAMPLE_SUBCATEGORY_SET_STRING),
+    ],
+)
+def test_get_subcategory_by_id(subcategory_id, name, description, category_string):
+    """Test that DiscourseCategory finds the correct subcategory by id."""
+    category_json = json.loads(category_string)
+    category = DiscourseCategory(category_json)
+    subcategory = category.get_subcategory_by_id(subcategory_id)
+
+    if name is None:
+        assert subcategory is None
+    else:
+        assert subcategory.get_name() == name
+        assert subcategory.get_description() == description
+        assert name in str(subcategory)
+
+
+@pytest.mark.parametrize(
+    "subcategory_id, name, description, category_string",
+    [
+        (
+            22,
+            "Windows",
+            "Welcome to the Windows containers in Kubernetes discussion.",
+            EXAMPLE_SUBCATEGORY_SET_STRING,
+        ),
+        (
+            26,
+            "microk8s",
+            "MicroK8s is a low-ops, minimal production Kubernetes.",
+            EXAMPLE_SUBCATEGORY_SET_STRING,
+        ),
+        (None, "test fail", None, EXAMPLE_SUBCATEGORY_SET_STRING),
+    ],
+)
+def test_get_subcategory_by_name(subcategory_id, name, description, category_string):
+    """Test that DiscourseCategory finds the correct subcategory by name."""
+    category_json = json.loads(category_string)
+    category = DiscourseCategory(category_json)
+    subcategory = category.get_subcategory_by_name(name)
+
+    if subcategory_id is None:
+        assert subcategory is None
+    else:
+        assert subcategory.get_id() == subcategory_id
+        assert subcategory.get_description() == description
+        assert name in str(subcategory)
+
+
 def test_add_topics_to_category():
     """Test that DiscourseCategory adds and provides topics correctly."""
     category = DiscourseCategory(json.loads('{"id":"45678","name":"Test","description_text":"A test category."}'))
