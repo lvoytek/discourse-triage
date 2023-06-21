@@ -24,6 +24,11 @@ class DiscourseCategory:
         if "description_text" in category_json:
             self._description = category_json["description_text"]
 
+        self._subcategories = []
+        if "subcategory_list" in category_json:
+            for subcategory in category_json["subcategory_list"]:
+                self.add_subcategory(DiscourseCategory(subcategory))
+
         self._topics = []
 
     def __str__(self):
@@ -49,8 +54,35 @@ class DiscourseCategory:
         if isinstance(topic, DiscourseTopic):
             self._topics.append(topic)
         else:
-            raise TypeError("Object of " + str(type(topic)) + " is not a DiscourseTopic")
+            raise TypeError("Object of type " + str(type(topic)) + " is not a DiscourseTopic")
 
     def get_topics(self):
         """Get all topics contained in the category."""
         return self._topics
+
+    def add_subcategory(self, subcategory):
+        """Add a DiscourseCategory object as a subcategory to the category."""
+        if isinstance(subcategory, DiscourseCategory):
+            self._subcategories.append(subcategory)
+        else:
+            raise TypeError("Object of type " + str(type(subcategory)) + " is not a DiscourseCategory")
+
+    def get_subcategories(self):
+        """Get all the category's subcategories."""
+        return self._subcategories
+
+    def get_subcategory_by_id(self, subcategory_id):
+        """Get a subcategory with the given id or return None if it does not exist."""
+        for subcategory in self._subcategories:
+            if subcategory.get_id() == subcategory_id:
+                return subcategory
+
+        return None
+
+    def get_subcategory_by_name(self, subcategory_name):
+        """Get the first subcategory with the given name or return None if it does not exist."""
+        for subcategory in self._subcategories:
+            if subcategory.get_name() == subcategory_name:
+                return subcategory
+
+        return None

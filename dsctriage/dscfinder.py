@@ -16,7 +16,7 @@ CATEGORY_JSON_URL = "#url/c/#id/show.json"
 
 CATEGORY_TOPIC_LIST_JSON_URL = "#url/c/#id.json"
 
-CATEGORY_LIST_JSON_URL = "#url/categories.json"
+CATEGORY_LIST_JSON_URL = "#url/categories.json?include_subcategories=true"
 
 TOPIC_POST_LIST_JSON_URL = "#url/t/#id.json"
 
@@ -115,21 +115,30 @@ def get_category_by_id(category_id, site=None):
 
 def get_category_by_name(category_name, site=None):
     """
-    Download category data for a given category name (case-insensitive) and return it as a DiscourseCategory object.
+    Download category data for a given category or category/subcategory/... name (case-insensitive).
 
-    Returns None if download fails or name is invalid.
+    Returns result as a DiscourseCategory object or None if download fails or name is invalid.
     """
+    category_nav = category_name.split("/")
+    final_category = None
+
     try:
         with request.urlopen(create_url(CATEGORY_LIST_JSON_URL, "", site)) as url_data:
             json_output = json.loads(url_data.read().decode())
         if "category_list" in json_output and "categories" in json_output["category_list"]:
             for category in json_output["category_list"]["categories"]:
-                if category["name"].lower() == category_name.lower():
-                    return DiscourseCategory(category)
+                if category["name"].lower() == category_nav[0].lower():
+                    final_category = DiscourseCategory(category)
     except HTTPError:
         pass
 
-    return None
+    for i in range(1, len(category_nav)):
+        if final_category:
+            final_category = final_category.get_subcategory_by_name(category_nav[i])
+        else:
+            break
+
+    return final_category
 
 
 def add_posts_to_topic(topic, site=None):

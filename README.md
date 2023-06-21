@@ -75,6 +75,13 @@ or:
 
     dsctriage --category desktop
 
+The output will also show updates within the given category's subcategories. If you would like updates from only one
+specific subcategory, then you can use `/` as if it were a subdirectory. For example, to check updates to `microk8s` in
+the [Kubernetes Discourse](https://discuss.kubernetes.io), which is a subcategory of [General Discussions](https://discuss.kubernetes.io/c/general-discussions/6),
+run the following:
+
+    dsctriage -c 'general discussions/microk8s' -s https://discuss.kubernetes.io
+
 ### Print full urls
 By default, post IDs can be clicked to open in a browser. However, if your terminal does not support the hyperlink
 format, or you just want the urls in plaintext you can use the `--fullurls` argument. This will print the url to the
