@@ -5,6 +5,7 @@
 ### Added
 
 * Subcategory specification with `/`
+* The `--tag` argument and selection of topics by tag
 
 ## 1.5.0
 
