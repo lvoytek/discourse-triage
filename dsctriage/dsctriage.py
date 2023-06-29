@@ -124,7 +124,7 @@ def parse_dates(start=None, end=None):
     return start, end
 
 
-def show_header(category_name, pretty_start_date, pretty_end_date, site=None):
+def show_header(category_name, pretty_start_date, pretty_end_date, site=None, tag=None):
     """Show a dynamic header explaining results."""
     date_range_info = (
         ("on " + str(pretty_start_date))
@@ -134,8 +134,9 @@ def show_header(category_name, pretty_start_date, pretty_end_date, site=None):
 
     logging.info("Discourse Comment Triage Helper")
     logging.info(
-        "Showing comments belonging to the %s category%s, updated %s",
+        "Showing comments belonging to the %s category%s%s, updated %s",
         str(category_name),
+        f" with the {tag} tag" if tag is not None else "",
         f" on {site}" if site is not None else "",
         date_range_info,
     )
@@ -417,6 +418,7 @@ def main(
     open_browser=False,
     shorten_links=True,
     site=None,
+    tag=None,
     log_stream=sys.stdout,
 ):
     """Download contents of a given category, find relevant posts, print them to console."""
@@ -439,7 +441,7 @@ def main(
     pretty_end = end.strftime("%Y-%m-%d (%A)")
     end += timedelta(days=1)
 
-    show_header(category_name, pretty_start, pretty_end, site)
+    show_header(category_name, pretty_start, pretty_end, site, tag)
 
     dscfinder.add_topics_to_category(category, start, site)
     fill_topics(category.get_topics(), progress_bar, site)
@@ -491,6 +493,9 @@ def launch():
         default=config.category,
         help="The discourse category to find comments from",
     )
+
+    parser.add_argument("-t", "--tag", dest="tag_name", default=None, help="Only show topics that have this tag")
+
     parser.add_argument(
         "-b",
         "--backlog",
@@ -523,4 +528,5 @@ def launch():
             args.open,
             not args.fullurls,
             args.site_url,
+            args.tag_name,
         )
