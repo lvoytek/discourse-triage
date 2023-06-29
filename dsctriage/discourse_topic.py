@@ -34,6 +34,11 @@ class DiscourseTopic:
         except (OSError, ValueError):
             pass
 
+        self._tags = []
+        if "tags" in topic_json:
+            for tag in topic_json["tags"]:
+                self._tags.append(str(tag))
+
         self._posts = []
 
     def __str__(self):
@@ -68,3 +73,15 @@ class DiscourseTopic:
     def get_latest_update_time(self):
         """Get the most recent update time as a DateTime."""
         return self._latest_update_time
+
+    def get_tags(self):
+        """Get the list of tags associated with the topic."""
+        return self._tags
+
+    def has_tag(self, tag_name):
+        """Check if the topic has the given tag."""
+        for contained_tag_name in self._tags:
+            if tag_name == contained_tag_name:
+                return True
+
+        return False

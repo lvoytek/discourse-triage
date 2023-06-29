@@ -38,6 +38,18 @@ EXAMPLE_TOPIC_STRING = (
     '"description":"Most Recent Poster","user_id":19034,"primary_group_id":null}]}'
 )
 
+EXAMPLE_TOPIC_STRING_WITH_TAGS = (
+    '{"id":10648,"title":"Charmed MongoDB K8S - Reference: Requirements",'
+    '"fancy_title":"Charmed MongoDB K8S - Reference: Requirements","slug":"charmed-mongodb-k8s-reference-requirements",'
+    '"posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2023-05-17T08:06:53.046Z",'
+    '"last_posted_at":"2023-05-17T08:06:53.178Z","bumped":true,"bumped_at":"2023-05-25T10:13:07.753Z",'
+    '"archetype":"regular","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,'
+    '"archived":false,"bookmarked":null,"liked":null,"tags":["k8s","mongodb","doc","charmed-mongodb"],"views":56,'
+    '"like_count":0,"has_summary":false,"last_poster_username":"dratushnyy","category_id":41,"pinned_globally":false,'
+    '"featured_link":null,"has_accepted_answer":false,"posters":[{"extras":"latest single",'
+    '"description":"Original Poster, Most Recent Poster","user_id":2064,"primary_group_id":43}]}'
+)
+
 
 EXAMPLE_CATEGORY_STRING = (
     '{"id":17,"name":"Server","color":"0E76BD","text_color":"FFFFFF","slug":"server","topic_count":156,'
@@ -152,20 +164,29 @@ def test_create_post_from_json(
 
 
 @pytest.mark.parametrize(
-    "topic_id, name, slug, update_time, topic_string",
+    "topic_id, name, slug, update_time, tags, topic_string",
     [
         (
             11522,
             "Virtualization - libvirt",
             "virtualization-libvirt",
             datetime.datetime(2022, 6, 13, 17, 56, 31, 210000, tzinfo=datetime.timezone.utc),
+            [],
             EXAMPLE_TOPIC_STRING,
         ),
-        (None, None, None, None, "{}"),
-        ("", "", "", None, '{"id":"","title":"","slug":"", "last_posted_at":""}'),
+        (
+            10648,
+            "Charmed MongoDB K8S - Reference: Requirements",
+            "charmed-mongodb-k8s-reference-requirements",
+            datetime.datetime(2023, 5, 25, 10, 13, 7, 753000, tzinfo=datetime.timezone.utc),
+            ["k8s", "mongodb", "doc", "charmed-mongodb"],
+            EXAMPLE_TOPIC_STRING_WITH_TAGS,
+        ),
+        (None, None, None, None, [], "{}"),
+        ("", "", "", None, [], '{"id":"","title":"","slug":"", "last_posted_at":"", "tags":[]}'),
     ],
 )
-def test_create_topic_from_json(topic_id, name, slug, update_time, topic_string):
+def test_create_topic_from_json(topic_id, name, slug, update_time, tags, topic_string):
     """Test that DiscourseTopic extracts json correctly."""
     topic_json = json.loads(topic_string)
     topic = DiscourseTopic(topic_json)
@@ -173,6 +194,9 @@ def test_create_topic_from_json(topic_id, name, slug, update_time, topic_string)
     assert topic.get_name() == name
     assert topic.get_slug() == slug
     assert topic.get_latest_update_time() == update_time
+
+    for tag_name in topic.get_tags():
+        assert tag_name in tags
 
     if topic_id is None or name is None:
         assert str(topic) == "Invalid Topic"
