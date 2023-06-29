@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.6.0
+
+Released on June 29, 2023
 
 ### Added
 
