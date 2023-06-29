@@ -6,8 +6,8 @@ Released on June 29, 2023
 
 ### Added
 
-* Subcategory specification with `/`
-* The `--tag` argument and selection of topics by tag
+* Subcategory specification with `/` [#17](https://github.com/lvoytek/discourse-triage/issues/17)
+* The `--tag` argument and selection of topics by tag [#16](https://github.com/lvoytek/discourse-triage/issues/16)
 
 ## 1.5.0
 
