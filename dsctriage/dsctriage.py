@@ -398,16 +398,18 @@ def print_post_in_backlog_format(post_id, site=None):
         )
 
 
-def fill_topics(topics, progress_bar, site=None):
+def fill_topics(topics, progress_bar, site=None, tag=None):
     """Download posts related to a list of topics and display progress if desired and available."""
     if progress_bar and alive_bar is not None:
         with alive_bar(len(topics), receipt=False) as bar_view:
             for topic in topics:
-                dscfinder.add_posts_to_topic(topic, site)
+                if not tag or topic.has_tag(tag):
+                    dscfinder.add_posts_to_topic(topic, site)
                 bar_view()
     else:
         for topic in topics:
-            dscfinder.add_posts_to_topic(topic, site)
+            if not tag or topic.has_tag(tag):
+                dscfinder.add_posts_to_topic(topic, site)
 
 
 def main(
@@ -444,7 +446,7 @@ def main(
     show_header(category_name, pretty_start, pretty_end, site, tag)
 
     dscfinder.add_topics_to_category(category, start, site)
-    fill_topics(category.get_topics(), progress_bar, site)
+    fill_topics(category.get_topics(), progress_bar, site, tag)
 
     print_comments(category, start, end, open_browser, shorten_links, site)
 
