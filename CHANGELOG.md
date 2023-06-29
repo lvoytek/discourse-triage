@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+* Subcategory specification with `/`
+
 ## 1.5.0
 
 Released on May 19, 2023
