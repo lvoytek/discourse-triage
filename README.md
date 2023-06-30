@@ -82,6 +82,14 @@ run the following:
 
     dsctriage -c 'general discussions/microk8s' -s https://discuss.kubernetes.io
 
+### Tag
+To focus specifically on topics with a given tag in Discourse, specify the `-t` or `--tag` option. Discourse Triage will
+then look through the tags of each updated topic in the category and only show those containing the one provided. For
+example, the following command will show updates to topics specific to kubeflow in the `charm` category of CharmHub's
+Discourse site:
+
+    dsctriage -s https://discourse.charmhub.io/ -c charm -t kubeflow
+
 ### Print full urls
 By default, post IDs can be clicked to open in a browser. However, if your terminal does not support the hyperlink
 format, or you just want the urls in plaintext you can use the `--fullurls` argument. This will print the url to the
