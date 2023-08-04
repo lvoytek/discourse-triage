@@ -129,6 +129,11 @@ def get_category_by_name(category_name, site=None):
             for category in json_output["category_list"]["categories"]:
                 if category["name"].lower() == category_nav[0].lower():
                     final_category = DiscourseCategory(category)
+
+                    # Some discourse sites fail to provide a subcategory list, check subcategory ids in this case
+                    if "subcategory_list" not in category and "subcategory_ids" in category:
+                        add_subcategories_to_category_by_ids(final_category, category["subcategory_ids"], site)
+
     except HTTPError:
         pass
 
@@ -139,6 +144,14 @@ def get_category_by_name(category_name, site=None):
             break
 
     return final_category
+
+
+def add_subcategories_to_category_by_ids(category, subcategory_ids, site=None):
+    """Add subcategories with ids contained in an array to a parent category."""
+    for subcategory_id in subcategory_ids:
+        new_subcategory = get_category_by_id(subcategory_id, site)
+        if new_subcategory:
+            category.add_subcategory(new_subcategory)
 
 
 def add_posts_to_topic(topic, site=None):

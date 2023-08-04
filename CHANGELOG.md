@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+* Find subcategories when no subcategory_list is provided [#21](https://github.com/lvoytek/discourse-triage/issues/21)
+
 ## 1.6.0
 
 Released on June 29, 2023
