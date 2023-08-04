@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.6.1
+
+Released on August 4, 2023
 
 ### Fixed
 
