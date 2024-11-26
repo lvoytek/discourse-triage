@@ -244,6 +244,7 @@ def add_topics_to_category_from_url(category, page_url, ignore_before_date=None,
 
 
 def get_site_url(site=None):
+    """Get the default URL is None is provided, otherwise return site."""
     return DEFAULT_DISCOURSE_URL if site is None else site
 
 
