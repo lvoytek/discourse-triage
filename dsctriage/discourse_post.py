@@ -1,4 +1,5 @@
 """DiscoursePost class."""
+
 from datetime import datetime
 
 

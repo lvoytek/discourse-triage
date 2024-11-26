@@ -1,4 +1,5 @@
 """DiscourseCategory class."""
+
 from .discourse_topic import DiscourseTopic
 
 

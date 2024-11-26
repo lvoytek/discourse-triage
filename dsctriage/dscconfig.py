@@ -1,4 +1,5 @@
 """dsctriage configuration manager."""
+
 import configparser
 from pathlib import Path
 
