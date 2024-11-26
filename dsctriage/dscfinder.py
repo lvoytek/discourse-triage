@@ -218,7 +218,7 @@ def add_topics_to_category(category, ignore_before_date=None, site=None):
 
 
 def add_topics_to_category_from_url(category, page_url, ignore_before_date=None, site=None):
-    """Recursively download data for all topics in a given category, page by page, and add them as DiscourseTopics to that category."""
+    """Recursively get all topics from pages in a given category, then add them as DiscourseTopics to the category."""
     try:
         with request.urlopen(page_url) as url_data:
             json_output = json.loads(url_data.read().decode())
