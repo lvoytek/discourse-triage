@@ -424,17 +424,17 @@ def main(
     log_stream=sys.stdout,
 ):
     """Download contents of a given category, find relevant posts, print them to console."""
-    category = dscfinder.get_category_by_name(category_name, site)
-
-    if category is None:
-        print("Unable to find category: " + str(category_name))
-        return
-
     logging.basicConfig(
         stream=log_stream,
         format="%(message)s",
         level=logging.DEBUG if debug else logging.INFO,
     )
+
+    category = dscfinder.get_category_by_name(category_name, site)
+
+    if category is None:
+        print("Unable to find category: " + str(category_name))
+        return
 
     date_range["start"], date_range["end"] = parse_dates(date_range["start"], date_range["end"])
     start = datetime.strptime(date_range["start"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
