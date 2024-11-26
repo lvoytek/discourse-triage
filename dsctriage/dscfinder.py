@@ -32,7 +32,7 @@ def create_url(template, id_var, site=None):
 
     If the site is None then use the default.
     """
-    return template.replace("#url", str(DEFAULT_DISCOURSE_URL if site is None else site)).replace("#id", str(id_var))
+    return template.replace("#url", get_site_url(site)).replace("#id", str(id_var))
 
 
 def extract_posts_from_json_post_stream(json_output):
@@ -213,12 +213,16 @@ def add_posts_to_topic(topic, site=None):
 def add_topics_to_category(category, ignore_before_date=None, site=None):
     """Download data for all topics under a given category and add them as DiscourseTopics to that category."""
     category_url = create_url(CATEGORY_TOPIC_LIST_JSON_URL, category.get_id(), site)
+    add_topics_to_category_from_url(category, category_url, ignore_before_date, site)
 
+
+def add_topics_to_category_from_url(category, page_url, ignore_before_date=None, site=None):
+    """Recursively download data for all topics in a given category, page by page, and add them as DiscourseTopics to that category."""
     try:
-        with request.urlopen(category_url) as url_data:
+        with request.urlopen(page_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Getting topics from {category_url}")
+        logging.debug(f"Getting topics from {page_url}")
 
         if "topic_list" in json_output and "topics" in json_output["topic_list"]:
             for topic in json_output["topic_list"]["topics"]:
@@ -230,18 +234,26 @@ def add_topics_to_category(category, ignore_before_date=None, site=None):
                 if new_topic is not None and accept_date:
                     category.add_topic(new_topic)
 
+        if "topic_list" in json_output and "more_topics_url" in json_output["topic_list"]:
+            next_url = f"{get_site_url(site)}{'.json?'.join(json_output['topic_list']['more_topics_url'].split('?'))}"
+            add_topics_to_category_from_url(category, next_url, ignore_before_date, site)
+
     except HTTPError:
-        logging.debug(f"Failed to get category from URL {category_url}")
+        logging.debug(f"Failed to get category from URL {page_url}")
+
+
+def get_site_url(site=None):
+    return DEFAULT_DISCOURSE_URL if site is None else site
 
 
 def get_topic_url(topic, site=None):
     """Get the human-readable site url of a given topic."""
-    return f"{DEFAULT_DISCOURSE_URL if site is None else site}/t/{str(topic.get_id())}"
+    return f"{get_site_url(site)}/t/{str(topic.get_id())}"
 
 
 def get_post_url_without_topic(post, site=None):
     """Get a URL shortcut to a post based on its id alone."""
-    return f"{DEFAULT_DISCOURSE_URL if site is None else site}/p/{str(post.get_id())}"
+    return f"{get_site_url(site)}/p/{str(post.get_id())}"
 
 
 def get_post_url(topic, post_index, site=None):
