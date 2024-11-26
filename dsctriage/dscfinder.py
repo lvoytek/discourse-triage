@@ -64,11 +64,11 @@ def get_post_by_id(post_id, site=None):
         with request.urlopen(post_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Post downloaded from {post_url}")
+        logging.debug("Post downloaded from %s", post_url)
 
         return DiscoursePost(json_output)
     except HTTPError:
-        logging.debug(f"Failed to get post from URL {post_url}")
+        logging.debug("Failed to get post from URL %s", post_url)
         return None
 
 
@@ -93,12 +93,12 @@ def get_batch_of_posts_by_id(topic_id, post_ids, site=None):
         with request.urlopen(posts_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Post stream downloaded from {posts_url}")
+        logging.debug("Post stream downloaded from %s", posts_url)
 
         return extract_posts_from_json_post_stream(json_output)
 
     except HTTPError:
-        logging.debug(f"Failed to get post stream from URL {posts_url}")
+        logging.debug("Failed to get post stream from URL %s", posts_url)
         return None
 
 
@@ -114,12 +114,12 @@ def get_category_by_id(category_id, site=None):
         with request.urlopen(category_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Category downloaded from URL {category_url}")
+        logging.debug("Category downloaded from URL %s", category_url)
 
         if "category" in json_output:
             return DiscourseCategory(json_output["category"])
     except HTTPError:
-        logging.debug(f"Failed to get category from URL {category_url}")
+        logging.debug("Failed to get category from URL %s", category_url)
 
     return None
 
@@ -138,7 +138,7 @@ def get_category_by_name(category_name, site=None):
         with request.urlopen(categories_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Getting category list from URL {categories_url}")
+        logging.debug("Getting category list from URL %s", categories_url)
 
         if "category_list" in json_output and "categories" in json_output["category_list"]:
             for category in json_output["category_list"]["categories"]:
@@ -150,7 +150,7 @@ def get_category_by_name(category_name, site=None):
                         add_subcategories_to_category_by_ids(final_category, category["subcategory_ids"], site)
 
     except HTTPError:
-        logging.debug(f"Failed to get category list from URL {categories_url}")
+        logging.debug("Failed to get category list from URL %s", categories_url)
 
     for i in range(1, len(category_nav)):
         if final_category:
@@ -177,7 +177,7 @@ def add_posts_to_topic(topic, site=None):
         with request.urlopen(topic_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Getting posts from {topic_url}")
+        logging.debug("Getting posts from %s", topic_url)
 
         # get initial set of posts from the post_stream > posts section of the JSON
         for new_post in extract_posts_from_json_post_stream(json_output):
@@ -208,7 +208,7 @@ def add_posts_to_topic(topic, site=None):
                     topic.add_post(new_post)
 
     except HTTPError:
-        logging.debug(f"Failed to get topic from URL {topic_url}")
+        logging.debug("Failed to get topic from URL %s", topic_url)
 
 
 def add_topics_to_category(category, ignore_before_date=None, site=None):
@@ -223,7 +223,7 @@ def add_topics_to_category_from_url(category, page_url, ignore_before_date=None,
         with request.urlopen(page_url) as url_data:
             json_output = json.loads(url_data.read().decode())
 
-        logging.debug(f"Getting topics from {page_url}")
+        logging.debug("Getting topics from %s", page_url)
 
         if "topic_list" in json_output and "topics" in json_output["topic_list"]:
             for topic in json_output["topic_list"]["topics"]:
@@ -240,7 +240,7 @@ def add_topics_to_category_from_url(category, page_url, ignore_before_date=None,
             add_topics_to_category_from_url(category, next_url, ignore_before_date, site)
 
     except HTTPError:
-        logging.debug(f"Failed to get category from URL {page_url}")
+        logging.debug("Failed to get category from URL %s", page_url)
 
 
 def get_site_url(site=None):
@@ -286,7 +286,7 @@ def create_editor_name_str(post, site=None):
             with request.urlopen(revision_url) as url_data:
                 json_output = json.loads(url_data.read().decode())
 
-            logging.debug(f"Extracting editor username from latest edit at {revision_url}")
+            logging.debug("Extracting editor username from latest edit at %s", revision_url)
 
             if "username" in json_output:
                 author_name = json_output["username"]
@@ -295,15 +295,15 @@ def create_editor_name_str(post, site=None):
             with request.urlopen(user_url) as user_url_data:
                 user_json_output = json.loads(user_url_data.read().decode())
 
-            logging.debug(f"Extracting user info from {user_url}")
+            logging.debug("Extracting user info from %s", user_url)
 
             if "user" in user_json_output and "name" in user_json_output["user"]:
                 author_name = user_json_output["user"]["name"]
 
         except HTTPError:
             if user_url != "":
-                logging.debug(f"Failed to get user from URL {user_url}")
+                logging.debug("Failed to get user from URL %s", user_url)
             else:
-                logging.debug(f"Failed to get latest edit from URL {revision_url}")
+                logging.debug("Failed to get latest edit from URL %s", revision_url)
 
     return author_name
