@@ -17,6 +17,7 @@ class DiscourseTopic:
         self._name = None
         self._slug = None
         self._latest_update_time = None
+        self._pinned = False
 
         if "id" in topic_json:
             self._id = topic_json["id"]
@@ -26,6 +27,9 @@ class DiscourseTopic:
 
         if "slug" in topic_json:
             self._slug = topic_json["slug"]
+
+        if "pinned" in topic_json:
+            self._pinned = topic_json["pinned"]
 
         try:
             if "bumped" in topic_json and topic_json["bumped"] and "bumped_at" in topic_json:
@@ -62,6 +66,10 @@ class DiscourseTopic:
     def get_slug(self):
         """Get the readable text id for the topic."""
         return self._slug
+
+    def get_pinned(self):
+        """Get the pinned status of the topic."""
+        return self._pinned
 
     def add_post(self, post):
         """Add a DiscoursePost object to the topic."""
