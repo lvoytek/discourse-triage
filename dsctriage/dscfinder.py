@@ -16,7 +16,7 @@ POST_LATEST_EDIT_JSON_URL = "#url/posts/#id/revisions/latest.json"
 
 CATEGORY_JSON_URL = "#url/c/#id/show.json"
 
-CATEGORY_TOPIC_LIST_JSON_URL = "#url/c/#id.json"
+CATEGORY_TOPIC_LIST_JSON_URL = "#url/c/#id.json?state=muted"
 
 CATEGORY_LIST_JSON_URL = "#url/categories.json?include_subcategories=true"
 
@@ -236,7 +236,7 @@ def add_topics_to_category_from_url(category, page_url, ignore_before_date=None,
                     category.add_topic(new_topic)
 
         if "topic_list" in json_output and "more_topics_url" in json_output["topic_list"]:
-            next_url = f"{get_site_url(site)}{'.json?'.join(json_output['topic_list']['more_topics_url'].split('?'))}"
+            next_url = get_next_category_page_url(json_output["topic_list"]["more_topics_url"], site)
             add_topics_to_category_from_url(category, next_url, ignore_before_date, site)
 
     except HTTPError:
@@ -246,6 +246,11 @@ def add_topics_to_category_from_url(category, page_url, ignore_before_date=None,
 def get_site_url(site=None):
     """Get the default URL is None is provided, otherwise return site."""
     return DEFAULT_DISCOURSE_URL if site is None else site
+
+
+def get_next_category_page_url(more_topics_url, site=None):
+    """Get the next page of topics for a category based on provided more_topics_url."""
+    return f"{get_site_url(site)}{'.json?'.join(more_topics_url.split('?'))}&state=muted"
 
 
 def get_topic_url(topic, site=None):
