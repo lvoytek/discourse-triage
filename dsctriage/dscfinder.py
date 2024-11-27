@@ -299,7 +299,7 @@ def create_editor_name_str(post, site=None):
             if "username" in json_output:
                 author_name = json_output["username"]
 
-                user_url = create_url(USER_JSON_URL, json_output["username"])
+                user_url = create_url(USER_JSON_URL, json_output["username"], site)
             with request.urlopen(user_url) as user_url_data:
                 user_json_output = json.loads(user_url_data.read().decode())
 
