@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.1
+
+Released on November 27, 2024
+
+### Fixed
+
+* Ignore pinned posts when considering cutting off topic check due to update time
+
 ## 1.7.0
 
 Released on November 27, 2024
