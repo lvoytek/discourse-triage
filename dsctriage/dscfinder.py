@@ -253,7 +253,7 @@ def get_site_url(site=None):
 
 def get_next_category_page_url(more_topics_url, site=None):
     """Get the next page of topics for a category based on provided more_topics_url."""
-    return f"{get_site_url(site)}{'.json?'.join(more_topics_url.split('?'))}&state=muted"
+    return f"{get_site_url(site)}{'.json?'.join(more_topics_url.split('?'))}"
 
 
 def get_topic_url(topic, site=None):
