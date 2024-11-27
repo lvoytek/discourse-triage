@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.7.0
+
+Released on November 27, 2024
+
+### Added
+
+* Show URLs when --debug argument is set
+
+### Changed
+
+* Include muted topics in updates from a category
+
+### Fixed
+
+* Access all relevant topics by checking all necessary category topic pages
+* Extract user information from the correct site URL [#22](https://github.com/lvoytek/discourse-triage/pull/22)
+
 ## 1.6.1
 
 Released on August 4, 2023
