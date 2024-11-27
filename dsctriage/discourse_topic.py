@@ -28,7 +28,7 @@ class DiscourseTopic:
             self._slug = topic_json["slug"]
 
         try:
-            if "bumped" in topic_json and "bumped_at" in topic_json:
+            if "bumped" in topic_json and topic_json["bumped"] and "bumped_at" in topic_json:
                 self._latest_update_time = datetime.fromisoformat(topic_json["bumped_at"].replace("Z", "+00:00"))
             elif "last_posted_at" in topic_json:
                 self._latest_update_time = datetime.fromisoformat(topic_json["last_posted_at"].replace("Z", "+00:00"))

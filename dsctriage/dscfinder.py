@@ -232,8 +232,11 @@ def add_topics_to_category_from_url(category, page_url, ignore_before_date=None,
                 update_time = None if new_topic is None else new_topic.get_latest_update_time()
                 accept_date = ignore_before_date is None or update_time is None or update_time >= ignore_before_date
 
-                if new_topic is not None and accept_date:
-                    category.add_topic(new_topic)
+                if accept_date:
+                    if new_topic is not None:
+                        category.add_topic(new_topic)
+                else:
+                    return
 
         if "topic_list" in json_output and "more_topics_url" in json_output["topic_list"]:
             next_url = get_next_category_page_url(json_output["topic_list"]["more_topics_url"], site)
