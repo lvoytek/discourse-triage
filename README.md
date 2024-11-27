@@ -82,6 +82,8 @@ run the following:
 
     dsctriage -c 'general discussions/microk8s' -s https://discuss.kubernetes.io
 
+Updates in the muted topics of a category will be included in the final output.
+
 ### Tag
 To focus specifically on topics with a given tag in Discourse, specify the `-t` or `--tag` option. Discourse Triage will
 then look through the tags of each updated topic in the category and only show those containing the one provided. For
