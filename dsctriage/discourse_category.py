@@ -81,9 +81,12 @@ class DiscourseCategory:
         return None
 
     def get_subcategory_by_name(self, subcategory_name):
-        """Get the first subcategory with the given name or return None if it does not exist."""
+        """Get the first subcategory with the given name or slug, or return None if it does not exist."""
         for subcategory in self._subcategories:
-            if subcategory.get_name().lower() == subcategory_name.lower():
+            if (
+                subcategory.get_name().lower() == subcategory_name.lower()
+                or subcategory.get_slug().lower() == subcategory_name.lower()
+            ):
                 return subcategory
 
         return None

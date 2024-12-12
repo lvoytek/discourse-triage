@@ -126,7 +126,7 @@ def get_category_by_id(category_id, site=None):
 
 def get_category_by_name(category_name, site=None):
     """
-    Download category data for a given category or category/subcategory/... name (case-insensitive).
+    Download category data for a given category or category/subcategory/... name or slug (case-insensitive).
 
     Returns result as a DiscourseCategory object or None if download fails or name is invalid.
     """
@@ -142,7 +142,10 @@ def get_category_by_name(category_name, site=None):
 
         if "category_list" in json_output and "categories" in json_output["category_list"]:
             for category in json_output["category_list"]["categories"]:
-                if category["name"].lower() == category_nav[0].lower():
+                if (
+                    category["name"].lower() == category_nav[0].lower()
+                    or category["slug"].lower() == category_nav[0].lower()
+                ):
                     final_category = DiscourseCategory(category)
 
                     # Some discourse sites fail to provide a subcategory list, check subcategory ids in this case
