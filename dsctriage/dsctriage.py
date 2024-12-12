@@ -132,7 +132,7 @@ def show_header(category_name, pretty_start_date, pretty_end_date, site=None, ta
         else ("between " + str(pretty_start_date) + " and " + str(pretty_end_date) + " inclusive")
     )
 
-    logging.info("Discourse Comment Triage Helper")
+    logging.info("Discourse Comment Triage")
     logging.info(
         "Showing comments belonging to the %s category%s%s, updated %s",
         str(category_name),
