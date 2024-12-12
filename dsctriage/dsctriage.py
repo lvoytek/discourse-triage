@@ -124,8 +124,8 @@ def parse_dates(start=None, end=None):
     return start, end
 
 
-def show_header(category_name, pretty_start_date, pretty_end_date, site=None, tag=None):
-    """Show a dynamic header explaining results."""
+def show_top_header(pretty_start_date, pretty_end_date, site=None):
+    """Show initial header containing the date range and Discourse site."""
     date_range_info = (
         ("on " + str(pretty_start_date))
         if pretty_start_date == pretty_end_date
@@ -134,11 +134,18 @@ def show_header(category_name, pretty_start_date, pretty_end_date, site=None, ta
 
     logging.info("Discourse Comment Triage")
     logging.info(
-        "Showing comments belonging to the %s category%s%s, updated %s",
-        str(category_name),
-        f" with the {tag} tag" if tag is not None else "",
+        "Showing comments%s, updated %s",
         f" on {site}" if site is not None else "",
         date_range_info,
+    )
+
+
+def show_category_header(category_name, tag=None):
+    """Show per-category header containing the category name and any tags."""
+    logging.info(
+        "Comments belonging to the %s category%s:",
+        str(category_name),
+        f" with the {tag} tag" if tag is not None else "",
     )
 
 
@@ -443,7 +450,8 @@ def main(
     pretty_end = end.strftime("%Y-%m-%d (%A)")
     end += timedelta(days=1)
 
-    show_header(category_name, pretty_start, pretty_end, site, tag)
+    show_top_header(pretty_start, pretty_end, site)
+    show_category_header(category_name, tag)
 
     dscfinder.add_topics_to_category(category, start, site)
     fill_topics(category.get_topics(), progress_bar, site, tag)
