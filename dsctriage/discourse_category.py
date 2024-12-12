@@ -14,6 +14,7 @@ class DiscourseCategory:
         """
         self._id = None
         self._name = None
+        self._slug = None
         self._description = None
 
         if "id" in category_json:
@@ -21,6 +22,9 @@ class DiscourseCategory:
 
         if "name" in category_json:
             self._name = category_json["name"]
+
+        if "slug" in category_json:
+            self._slug = category_json["slug"]
 
         if "description_text" in category_json:
             self._description = category_json["description_text"]
@@ -45,6 +49,10 @@ class DiscourseCategory:
     def get_name(self):
         """Get the name of the category."""
         return self._name
+
+    def get_slug(self):
+        """Get the slug of the category."""
+        return self._slug
 
     def get_description(self):
         """Get the short description of the category."""
