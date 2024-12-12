@@ -420,7 +420,7 @@ def fill_topics(topics, progress_bar, site=None, tag=None):
 
 
 def main(
-    category_name,
+    category_names,
     date_range=None,
     debug=False,
     progress_bar=False,
@@ -430,18 +430,12 @@ def main(
     tag=None,
     log_stream=sys.stdout,
 ):
-    """Download contents of a given category, find relevant posts, print them to console."""
+    """Download contents of a given category or comma-separated set of categories, find relevant posts, print them to console."""
     logging.basicConfig(
         stream=log_stream,
         format="%(message)s",
         level=logging.DEBUG if debug else logging.INFO,
     )
-
-    category = dscfinder.get_category_by_name(category_name, site)
-
-    if category is None:
-        print("Unable to find category: " + str(category_name))
-        return
 
     date_range["start"], date_range["end"] = parse_dates(date_range["start"], date_range["end"])
     start = datetime.strptime(date_range["start"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -451,12 +445,23 @@ def main(
     end += timedelta(days=1)
 
     show_top_header(pretty_start, pretty_end, site)
-    show_category_header(category_name, tag)
 
-    dscfinder.add_topics_to_category(category, start, site)
-    fill_topics(category.get_topics(), progress_bar, site, tag)
+    category_name_list = category_names.split(",")
 
-    print_comments(category, start, end, open_browser, shorten_links, site)
+    for category_name in category_name_list:
+        category_name = category_name.strip()
+        category = dscfinder.get_category_by_name(category_name, site)
+
+        if category is None:
+            logging.warning("Unable to find category: " + str(category_name))
+            continue
+
+        show_category_header(category_name, tag)
+
+        dscfinder.add_topics_to_category(category, start, site)
+        fill_topics(category.get_topics(), progress_bar, site, tag)
+
+        print_comments(category, start, end, open_browser, shorten_links, site)
 
 
 def launch():
