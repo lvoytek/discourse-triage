@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.8.0
+
+Released on December 12, 2024
+
+### Added
+
+* Multi-category support through comma-separated category list [#23](https://github.com/lvoytek/discourse-triage/issues/23) 
+
+### Changed
+
+* Default categories are now `project/server` and `documentation/server-guide`
+* Match category names to slugs too
+
+### Fixed
+
+* Allow case-insensitive subcategory name matching
+
 ## 1.7.1
 
 Released on November 27, 2024

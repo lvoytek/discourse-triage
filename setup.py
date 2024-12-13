@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="dsctriage",
-    version="1.7.1",
+    version="1.8.0",
     description="Output Ubuntu Discourse comments for triage",
     author="Lena Voytek",
     author_email="lena.voytek@canonical.com",
