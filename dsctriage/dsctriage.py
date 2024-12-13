@@ -430,7 +430,7 @@ def main(
     tag=None,
     log_stream=sys.stdout,
 ):
-    """Download contents of a given category or comma-separated set of categories, find relevant posts, print them to console."""
+    """Download contents of a given category or set of categories, find relevant posts, print them to console."""
     logging.basicConfig(
         stream=log_stream,
         format="%(message)s",
