@@ -446,9 +446,7 @@ def main(
 
     show_top_header(pretty_start, pretty_end, site)
 
-    category_name_list = category_names.split(",")
-
-    for category_name in category_name_list:
+    for category_name in category_names.split(","):
         category_name = category_name.strip()
         category = dscfinder.get_category_by_name(category_name, site)
 
