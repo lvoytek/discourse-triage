@@ -27,7 +27,7 @@ To run Discourse Triage with the default settings, open a terminal and enter:
 
     dsctriage
 
-By default, the script will find new posts in the `Server` category that were created or updated yesterday or over the weekend and display them in the terminal. Clicking on the post ID will open a given comment in a web browser. The following arguments can be used to change functionality.
+By default, the script will find new posts in the Ubuntu Server discussion and guide categories, created or updated yesterday or over the weekend. They will then be displayed in the terminal in a tree format. Clicking on the post ID will open a given comment in a web browser. The following arguments can be used to change functionality.
 
 ### Dates
 Dates must follow the format: `%Y-%m-%d` (e.g. 2019-12-17, 2020-05-26)
