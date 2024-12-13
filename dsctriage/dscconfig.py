@@ -5,7 +5,7 @@ from pathlib import Path
 
 default_config = {
     "dsctriage": {
-        "category": "Server",
+        "category": "project/server,documentation/server-guide",
         "site": "https://discourse.ubuntu.com",
         "progress_bar": True,
         "shorten_links": True,
