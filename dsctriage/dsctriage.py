@@ -453,7 +453,7 @@ def main(
         category = dscfinder.get_category_by_name(category_name, site)
 
         if category is None:
-            logging.warning("Unable to find category: " + str(category_name))
+            logging.warning("Unable to find category: %s", str(category_name))
             continue
 
         show_category_header(category_name, tag)
