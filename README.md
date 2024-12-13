@@ -63,17 +63,17 @@ or:
 
     dsctriage --site https://meta.discourse.org -c plugin
 
-### Category
-If you want to find comments in a different category (see the [Ubuntu category list](https://discourse.ubuntu.com/categories)),
-then you can specify it with the `-c` or `--category` option. Discourse Triage will attempt to match the name with an
-existing category, case-insensitive. For example, to get comments from yesterday or over the weekend in the `Desktop` category, run
-either:
+### Categories
+If you want to find comments in a different category or set of categories (see the [Ubuntu category list](https://discourse.ubuntu.com/categories)),
+then you can specify them with the `-c` or `--category` option. Discourse Triage will attempt to match each listed item
+with an  existing category name or slug, case-insensitive. For example, to get comments from yesterday or over the
+weekend in the `LXD` and `Multipass` categories, run either:
 
-    dsctriage -c desktop
+    dsctriage -c LXD,Multipass
 
 or:
 
-    dsctriage --category desktop
+    dsctriage --category LXD,Multipass
 
 The output will also show updates within the given category's subcategories. If you would like updates from only one
 specific subcategory, then you can use `/` as if it were a subdirectory. For example, to check updates to `microk8s` in

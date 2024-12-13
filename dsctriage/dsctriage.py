@@ -506,7 +506,7 @@ def launch():
         "--category",
         dest="category_name",
         default=config.category,
-        help="The discourse category to find comments from",
+        help="Comma separated list of discourse categories or subcategories to find comments from",
     )
 
     parser.add_argument("-t", "--tag", dest="tag_name", default=None, help="Only show topics that have this tag")
